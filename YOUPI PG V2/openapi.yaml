@@ -1,0 +1,318 @@
+openapi: 3.0.3
+info:
+  title: YOUPI PG V2 — Public Developer Integration API
+  version: 2.0.0
+  description: |
+    Official public integration API and webhook contract for YOUPI PG V2 Sovereign Payment Gateway.
+    Allows merchants to create payment sessions, query verification status, and receive authoritative HMAC-SHA256 signed webhooks.
+
+servers:
+  - url: http://localhost:7000
+    description: Local Checkout Portal (Transparent API Proxy with Zero-CORS)
+  - url: http://localhost:6100
+    description: Local Payment Core API (Direct Service Port)
+  - url: https://pay.yourdomain.com
+    description: Production Gateway Base URL
+
+paths:
+  /api/v1/payments:
+    post:
+      summary: Create Payment Session / Order
+      description: |
+        Initializes a new payment session. Returns the payment identifier and the checkoutUrl
+        to be loaded inside the YOUPI modal iframe or standalone browser window.
+      operationId: createPayment
+      parameters:
+        - name: X-Merchant-Id
+          in: header
+          required: false
+          description: Public publishable merchant identifier. If omitted, uses the default configured merchant.
+          schema:
+            type: string
+            example: "00000000-0000-0000-0000-000000000001"
+        - name: Idempotency-Key
+          in: header
+          required: false
+          description: Unique idempotency key preventing duplicate payment creation.
+          schema:
+            type: string
+            example: "idem_9f82b71e"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreatePaymentRequest'
+      responses:
+        '201':
+          description: Payment session successfully created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreatePaymentResponse'
+        '200':
+          description: Existing session returned for idempotent request or ongoing active session.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreatePaymentResponse'
+        '400':
+          description: Missing or invalid request parameters.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: Access blocked due to security/fraud flagging on customer account.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Duplicate active payment session detected on another device.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DuplicateSessionResponse'
+
+  /api/v1/payments/{id}:
+    get:
+      summary: Get Payment Status
+      description: |
+        Retrieves current lifecycle status and outcome of a payment session.
+      operationId: getPaymentStatus
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Unique payment session UUID.
+          schema:
+            type: string
+            example: "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+      responses:
+        '200':
+          description: Payment details and outcome.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentDetailsResponse'
+        '404':
+          description: Payment session not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/checkout/{id}/cancel:
+    post:
+      summary: Cancel Payment Session
+      description: |
+        Explicitly cancels an active or queued payment session, immediately releasing the UPI concurrency slot.
+      operationId: cancelPaymentSession
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Payment session UUID to cancel.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Session transitioned to CANCELLED.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  status:
+                    type: string
+                    example: "CANCELLED"
+        '404':
+          description: Session not found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+components:
+  schemas:
+    CreatePaymentRequest:
+      type: object
+      required:
+        - orderId
+        - amount
+      properties:
+        orderId:
+          type: string
+          description: Merchant order identifier.
+          example: "ORDER-1001"
+        amount:
+          type: string
+          description: Amount in Indian Rupees (INR) with up to 2 decimal places.
+          example: "499.00"
+        currency:
+          type: string
+          default: "INR"
+          example: "INR"
+        customer:
+          type: object
+          properties:
+            name:
+              type: string
+              example: "Mohit Kumar"
+            email:
+              type: string
+              example: "mohit@example.com"
+            phoneNumber:
+              type: string
+              example: "9876543210"
+        description:
+          type: string
+          example: "Order Payment #1001"
+        returnUrl:
+          type: string
+          description: Merchant URL to redirect customer upon completion.
+          example: "https://mystore.example/order-success?orderId=ORDER-1001"
+        metadata:
+          type: object
+          description: Unmodified custom key-value pairs preserved by YOUPI PG.
+          additionalProperties: true
+          example:
+            product_id: "TSHIRT-01"
+            cart_id: "CART-88"
+
+    CreatePaymentResponse:
+      type: object
+      properties:
+        paymentId:
+          type: string
+          example: "c7942127-14e3-469a-9e4a-9359a16f903a"
+        orderId:
+          type: string
+          example: "ORDER-1001"
+        amount:
+          type: string
+          example: "499.00"
+        amountPaise:
+          type: string
+          example: "49900"
+        currency:
+          type: string
+          example: "INR"
+        status:
+          type: string
+          enum: [INITIATED, ACTIVE, QUEUED, PROCESSING, SUCCESS, FAILED, EXPIRED, CANCELLED]
+          example: "INITIATED"
+        queuePosition:
+          type: integer
+          example: 0
+        checkoutUrl:
+          type: string
+          example: "http://localhost:7000/checkout/c7942127-14e3-469a-9e4a-9359a16f903a"
+
+    PaymentDetailsResponse:
+      type: object
+      properties:
+        paymentId:
+          type: string
+          example: "c7942127-14e3-469a-9e4a-9359a16f903a"
+        orderId:
+          type: string
+          example: "ORDER-1001"
+        amount:
+          type: string
+          example: "499.00"
+        amountPaise:
+          type: string
+          example: "49900"
+        currency:
+          type: string
+          example: "INR"
+        status:
+          type: string
+          enum: [INITIATED, ACTIVE, QUEUED, PROCESSING, SUCCESS, FAILED, EXPIRED, CANCELLED]
+          example: "SUCCESS"
+        method:
+          type: string
+          example: "UPI"
+        verificationLevel:
+          type: integer
+          description: 0 = unverified, 1 = SMS observed, 2 = Dual SMS + Gmail verified.
+          example: 2
+        completedAt:
+          type: string
+          format: date-time
+          nullable: true
+          example: "2026-10-07T12:00:00.000Z"
+        metadata:
+          type: object
+          additionalProperties: true
+
+    WebhookPayload:
+      type: object
+      description: Payload delivered to merchant configured webhook URL via HTTPS POST.
+      properties:
+        event:
+          type: string
+          enum: [SUCCESS, FAILED, EXPIRED, CANCELLED]
+          example: "SUCCESS"
+        paymentId:
+          type: string
+          example: "c7942127-14e3-469a-9e4a-9359a16f903a"
+        orderId:
+          type: string
+          example: "ORDER-1001"
+        amount:
+          type: string
+          example: "499.00"
+        amountPaise:
+          type: integer
+          example: 49900
+        currency:
+          type: string
+          example: "INR"
+        method:
+          type: string
+          example: "UPI"
+        utr:
+          type: string
+          description: 12-digit bank reference number extracted by banking observers.
+          example: "123456789012"
+        completedAt:
+          type: string
+          format: date-time
+          example: "2026-10-07T12:00:00.000Z"
+        metadata:
+          type: object
+          additionalProperties: true
+
+    DuplicateSessionResponse:
+      type: object
+      properties:
+        error:
+          type: string
+          example: "DUPLICATE_SESSION_DETECTED"
+        code:
+          type: string
+          example: "DEVICE_SESSION_MISMATCH"
+        session_id:
+          type: string
+          example: "c7942127-14e3-469a-9e4a-9359a16f903a"
+        action:
+          type: string
+          example: "END_SESSION_AND_CREATE_NEW"
+        message:
+          type: string
+
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+          example: "Missing required fields: orderId and amount."
+        message:
+          type: string
+          nullable: true

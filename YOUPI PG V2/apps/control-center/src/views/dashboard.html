@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Control Center — YOUPI PG</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card-bg: #1e293b;
+      --border: #334155;
+      --text: #f8fafc;
+      --text-muted: #cbd5e1;
+      --primary: #3b82f6;
+      --primary-hover: #2563eb;
+      --success: #10b981;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, monospace; }
+    body { background: var(--bg); color: var(--text); min-height: 100vh; display: flex; flex-direction: column; padding: 1.5rem; }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .brand { font-size: 1.35rem; font-weight: 800; color: #fff; display: flex; align-items: center; gap: 0.5rem; }
+    .header-actions { display: flex; gap: 0.75rem; }
+
+    .btn { padding: 0.5rem 1rem; border-radius: 0.5rem; border: none; font-weight: 700; cursor: pointer; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.4rem; transition: all 0.2s; }
+    .btn-success { background: #047857; color: #fff; }
+    .btn-danger { background: #b91c1c; color: #fff; }
+    .btn-secondary { background: var(--border); color: #fff; }
+    .btn:hover { filter: brightness(1.1); }
+
+    .card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 0.75rem; padding: 1.25rem; margin-bottom: 1.5rem; }
+    .card-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 1rem; display: flex; justify-content: space-between; align-items: center; }
+
+    table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+    th { text-align: left; padding: 0.75rem; background: #0f172a; border-bottom: 1px solid var(--border); color: var(--text-muted); }
+    td { padding: 0.75rem; border-bottom: 1px solid var(--border); }
+
+    .badge { padding: 0.2rem 0.5rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 700; display: inline-block; }
+    .badge-running { background: rgba(16, 185, 129, 0.2); color: var(--success); border: 1px solid rgba(16, 185, 129, 0.3); }
+    .badge-stopped { background: rgba(239, 68, 68, 0.2); color: var(--danger); border: 1px solid rgba(239, 68, 68, 0.3); }
+    .badge-starting { background: rgba(245, 158, 11, 0.2); color: var(--warning); border: 1px solid rgba(245, 158, 11, 0.3); }
+
+    /* Terminal console */
+    .terminal-window {
+      background: #020617;
+      border: 1px solid var(--border);
+      border-radius: 0.75rem;
+      height: 380px;
+      overflow-y: auto;
+      padding: 1rem;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 0.82rem;
+      line-height: 1.6;
+      color: #cbd5e1;
+    }
+
+    .log-line { margin-bottom: 0.2rem; word-break: break-all; }
+    .log-ts { color: var(--text-muted); margin-right: 0.5rem; }
+    .log-svc { color: #38bdf8; font-weight: 700; margin-right: 0.5rem; }
+    .log-stderr { color: #f87171; }
+    .log-system { color: #a3e635; font-style: italic; }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <span>🛡️ YOUPI Control Center</span>
+    <span style="font-size: 0.85rem; color: var(--text-muted); font-weight: 400;">| Local Native Process Supervisor (Port 8090)</span>
+  </div>
+  <div class="header-actions">
+    <a href="http://localhost:6001" class="btn btn-primary" style="background:#2563eb; color:#fff; text-decoration:none;">🏪 Open Unified Merchant Panel ↗</a>
+    <button class="btn btn-success" onclick="startAllServices()">▶ Start All Services</button>
+    <button class="btn btn-danger" onclick="stopAllServices()">⏹ Stop All Services</button>
+  </div>
+</header>
+
+<div style="background:rgba(37,99,235,0.15); border:1px solid #3b82f6; border-radius:0.75rem; padding:0.85rem 1.25rem; margin-bottom:1.5rem; display:flex; justify-content:space-between; align-items:center;">
+  <div>
+    <strong style="color:#60a5fa;">💡 Control Center is now integrated directly inside the Merchant Panel!</strong>
+    <p style="margin:0.25rem 0 0 0; font-size:0.82rem; color:#cbd5e1;">You can manage all host processes, live logs, YOUPI Store toggle, and gateway operations in one place at <code>http://localhost:6001</code>.</p>
+  </div>
+  <a href="http://localhost:6001" class="btn" style="background:#2563eb; color:#fff; text-decoration:none; padding:0.5rem 1rem;">Go to Merchant Panel &rsaquo;</a>
+</div>
+
+<main>
+  <!-- Services Process Table -->
+  <div class="card">
+    <div class="card-title">
+      <span>Managed Host Processes (Zero Docker Dependency)</span>
+      <button class="btn btn-secondary" style="padding: 0.3rem 0.6rem; font-size: 0.75rem;" onclick="loadServices()">Refresh</button>
+    </div>
+
+    <div style="overflow-x: auto;">
+      <table>
+        <thead>
+          <tr>
+            <th>Service Name</th>
+            <th>Port</th>
+            <th>PID</th>
+            <th>Status</th>
+            <th>Uptime</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="servicesTableBody">
+          <tr><td colspan="6" style="text-align: center; color: var(--text-muted);">Loading processes...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Real-Time Aggregate Log Stream -->
+  <div class="card">
+    <div class="card-title">
+      <span>Real-Time Aggregate Terminal Logs</span>
+      <button class="btn btn-secondary" style="padding: 0.3rem 0.6rem; font-size: 0.75rem;" onclick="clearLogs()">Clear Screen</button>
+    </div>
+
+    <div class="terminal-window" id="terminalLogWindow">
+      <div class="log-line log-system">
+        <span class="log-ts">[Ready]</span> YOUPI Control Center operational. Awaiting log streams...
+      </div>
+    </div>
+  </div>
+</main>
+
+<script>
+  let sse = null;
+
+  async function loadServices() {
+    try {
+      const res = await fetch('/api/services');
+      const services = await res.json();
+      const tbody = document.getElementById('servicesTableBody');
+
+      tbody.innerHTML = services.map(s => {
+        let badgeClass = 'badge-stopped';
+        if (s.status === 'RUNNING') badgeClass = 'badge-running';
+        if (s.status === 'STARTING') badgeClass = 'badge-starting';
+
+        const isRunning = s.status === 'RUNNING';
+
+        return `
+          <tr>
+            <td><strong>${s.name}</strong><br/><span style="font-size:0.75rem;color:var(--text-muted);">${s.id}</span></td>
+            <td><code>${s.port}</code></td>
+            <td><code>${s.pid || '-'}</code></td>
+            <td><span class="badge ${badgeClass}">${s.status}</span></td>
+            <td>${s.uptimeSeconds ? s.uptimeSeconds + 's' : '-'}</td>
+            <td>
+              ${isRunning ? `
+                <button class="btn btn-secondary" style="padding:0.25rem 0.5rem; font-size:0.75rem;" onclick="restartService('${s.id}')">Restart</button>
+                <button class="btn btn-danger" style="padding:0.25rem 0.5rem; font-size:0.75rem;" onclick="stopService('${s.id}')">Stop</button>
+              ` : `
+                <button class="btn btn-success" style="padding:0.25rem 0.5rem; font-size:0.75rem;" onclick="startService('${s.id}')">Start</button>
+              `}
+            </td>
+          </tr>
+        `;
+      }).join('');
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  async function startService(id) {
+    await fetch(`/api/services/${id}/start`, { method: 'POST' });
+    loadServices();
+  }
+
+  async function stopService(id) {
+    await fetch(`/api/services/${id}/stop`, { method: 'POST' });
+    loadServices();
+  }
+
+  async function restartService(id) {
+    await fetch(`/api/services/${id}/restart`, { method: 'POST' });
+    loadServices();
+  }
+
+  async function startAllServices() {
+    await fetch('/api/services/start-all', { method: 'POST' });
+    setTimeout(loadServices, 1000);
+  }
+
+  async function stopAllServices() {
+    await fetch('/api/services/stop-all', { method: 'POST' });
+    setTimeout(loadServices, 1000);
+  }
+
+  function clearLogs() {
+    document.getElementById('terminalLogWindow').innerHTML = '';
+  }
+
+  function connectLogsSse() {
+    if (sse) sse.close();
+    sse = new EventSource('/api/logs/stream');
+
+    sse.addEventListener('log', (e) => {
+      try {
+        const log = JSON.parse(e.data);
+        appendTerminalLine(log);
+      } catch {}
+    });
+
+    sse.addEventListener('status_change', () => {
+      loadServices();
+    });
+
+    sse.onerror = () => {
+      setTimeout(connectLogsSse, 3000);
+    };
+  }
+
+  function appendTerminalLine(log) {
+    const term = document.getElementById('terminalLogWindow');
+    const div = document.createElement('div');
+    div.className = `log-line ${log.stream === 'stderr' ? 'log-stderr' : (log.stream === 'system' ? 'log-system' : '')}`;
+
+    const time = new Date(log.timestamp).toLocaleTimeString();
+    div.innerHTML = `<span class="log-ts">[${time}]</span><span class="log-svc">[${log.serviceId}]</span> ${escapeHtml(log.line)}`;
+
+    term.appendChild(div);
+    term.scrollTop = term.scrollHeight;
+  }
+
+  function escapeHtml(text) {
+    return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  }
+
+  // Init
+  loadServices();
+  connectLogsSse();
+  setInterval(loadServices, 5000);
+</script>
+
+</body>
+</html>

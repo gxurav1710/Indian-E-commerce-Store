@@ -1,0 +1,16 @@
+{
+  "name": "payment-api",
+  "version": "1.0.0",
+  "description": "Central Payment REST API and SSE Engine for YOUPI PG",
+  "type": "module",
+  "main": "./src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "test": "node --test src/__tests__/**/*.test.js"
+  },
+  "dependencies": {
+    "@youpi/common": "*",
+    "@youpi/db": "*",
+    "@youpi/core": "*"
+  }
+}

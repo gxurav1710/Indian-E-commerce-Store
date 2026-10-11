@@ -1,0 +1,16 @@
+{
+  "name": "@unified/whatsapp-worker",
+  "version": "1.0.0",
+  "description": "WhatsApp Baileys & Mock WebSocket daemon with native non-Docker runtime",
+  "type": "module",
+  "main": "./src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "test": "node --test src/__tests__/**/*.test.js"
+  },
+  "dependencies": {
+    "berryprotocol": "^0.1.10",
+    "@berrysdk/berry-otp": "^0.1.9",
+    "qrcode": "^1.5.3"
+  }
+}

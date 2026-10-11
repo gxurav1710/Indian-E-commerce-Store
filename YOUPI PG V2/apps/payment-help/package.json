@@ -1,0 +1,15 @@
+{
+  "name": "payment-help",
+  "version": "1.0.0",
+  "description": "Customer Payment Help Portal, History & Support Chat for YOUPI PG",
+  "type": "module",
+  "main": "./src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "test": "node --test src/__tests__/**/*.test.js"
+  },
+  "dependencies": {
+    "@youpi/common": "*",
+    "@youpi/db": "*"
+  }
+}

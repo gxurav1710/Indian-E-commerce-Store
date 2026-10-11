@@ -1,0 +1,39 @@
+# Dependencies
+node_modules/
+*/node_modules/
+*/*/node_modules/
+*/*/*/node_modules/
+
+# Environment files & Secrets
+.env
+*.env
+!.env.example
+.env.local
+.env.*.local
+
+# SQLite Databases & runtime data
+*.sqlite
+*.sqlite-wal
+*.sqlite-shm
+data/*.sqlite*
+data/runtime_config.json
+data/test_*
+data/berry_auth/
+data/whatsapp_session.json
+
+# Large snapshot archives
+snapshots/*.tar.gz
+snapshots/*.zip
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# System & Editor files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

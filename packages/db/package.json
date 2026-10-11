@@ -1,0 +1,14 @@
+{
+  "name": "@unified/db",
+  "version": "1.0.0",
+  "description": "Unified database layer for PostgreSQL/Supabase and local SQLite with repositories",
+  "type": "module",
+  "main": "./src/index.js",
+  "scripts": {
+    "seed": "node src/seed.js",
+    "test": "node --test src/__tests__/**/*.test.js"
+  },
+  "dependencies": {
+    "@unified/common": "*"
+  }
+}

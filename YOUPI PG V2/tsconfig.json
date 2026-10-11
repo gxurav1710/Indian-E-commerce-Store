@@ -1,0 +1,17 @@
+{
+  "files": [],
+  "references": [
+    { "path": "./packages/common" },
+    { "path": "./packages/db" },
+    { "path": "./packages/core" },
+    { "path": "./packages/observer-sdk" },
+    { "path": "./packages/merchant-sdk" },
+    { "path": "./apps/payment-api" },
+    { "path": "./apps/checkout-portal" },
+    { "path": "./apps/merchant-admin" },
+    { "path": "./apps/payment-help" },
+    { "path": "./apps/gmail-observer" },
+    { "path": "./apps/sms-observer" },
+    { "path": "./apps/control-center" }
+  ]
+}

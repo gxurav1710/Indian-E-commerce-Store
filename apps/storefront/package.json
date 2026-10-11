@@ -1,0 +1,14 @@
+{
+  "name": "@unified/storefront",
+  "version": "1.0.0",
+  "description": "Unified Commercial E-Commerce Storefront with Native WhatsApp Auth and YouPi Payment Gateway",
+  "type": "module",
+  "main": "./src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "test": "node --test src/__tests__/**/*.test.js"
+  },
+  "dependencies": {
+    "@unified/common": "*"
+  }
+}

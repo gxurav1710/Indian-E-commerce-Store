@@ -1,0 +1,1877 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>YOUPI Store · Enterprise Payment Gateway Suite</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <!-- OFFICIAL YOUPI PG UNIVERSAL INTEGRATION SCRIPT -->
+  <script src="/youpi.js" data-youpi-key="00000000-0000-0000-0000-000000000001" data-currency="INR"></script>
+
+  <style>
+    :root {
+      --primary: #2563eb;
+      --primary-hover: #1d4ed8;
+      --primary-glow: rgba(37, 99, 235, 0.22);
+      --primary-light: #eff6ff;
+      --primary-border: #bfdbfe;
+
+      --bg: #f8fafc;
+      --bg-card: #ffffff;
+      --bg-card-subtle: #f8fafc;
+      --border: #e2e8f0;
+      --border-focus: #2563eb;
+      --border-hover: #cbd5e1;
+
+      --text: #0f172a;
+      --text-muted: #64748b;
+      --text-dim: #94a3b8;
+      --text-heading: #0f172a;
+
+      --success: #059669;
+      --success-light: #ecfdf5;
+      --success-border: #a7f3d0;
+
+      --amber: #d97706;
+      --amber-light: #fffbeb;
+      --amber-border: #fde68a;
+
+      --danger: #dc2626;
+      --danger-light: #fef2f2;
+      --danger-border: #fca5a5;
+
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 16px;
+      --radius-xl: 20px;
+
+      --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.03);
+      --shadow-md: 0 4px 12px -2px rgba(0, 0, 0, 0.06), 0 2px 6px -1px rgba(0, 0, 0, 0.04);
+      --shadow-lg: 0 12px 30px -4px rgba(0, 0, 0, 0.08), 0 4px 12px -2px rgba(0, 0, 0, 0.03);
+      --shadow-glow: 0 8px 24px -4px rgba(37, 99, 235, 0.28);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      line-height: 1.5;
+      overflow-x: hidden;
+    }
+
+    /* --- TOP ANNOUNCEMENT BANNER --- */
+    .top-announcement {
+      background: linear-gradient(90deg, #1e3a8a 0%, #2563eb 50%, #0284c7 100%);
+      color: #ffffff;
+      font-size: 0.78rem;
+      font-weight: 600;
+      padding: 0.45rem 1rem;
+      text-align: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.6rem;
+      letter-spacing: 0.02em;
+    }
+
+    /* --- HEADER & NAVIGATION --- */
+    header {
+      background: #ffffff;
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: var(--shadow-sm);
+    }
+    .header-inner {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 0.85rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+    .brand-group {
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+      text-decoration: none;
+    }
+    .brand-logo-badge {
+      width: 38px;
+      height: 38px;
+      background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+      color: #ffffff;
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 900;
+      font-size: 1.25rem;
+      box-shadow: var(--shadow-sm);
+    }
+    .brand-text {
+      display: flex;
+      flex-direction: column;
+    }
+    .brand-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: var(--text-heading);
+      line-height: 1.1;
+      letter-spacing: -0.02em;
+    }
+    .brand-subtitle {
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--primary);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .badge-live-store {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      background: var(--success-light);
+      border: 1px solid var(--success-border);
+      color: var(--success);
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 0.25rem 0.65rem;
+      border-radius: 9999px;
+    }
+    .badge-live-store .dot {
+      width: 7px;
+      height: 7px;
+      background: #10b981;
+      border-radius: 50%;
+      animation: pulseDot 1.8s infinite;
+    }
+    @keyframes pulseDot {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(0.85); }
+    }
+
+    .btn-admin-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      background: #f1f5f9;
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-size: 0.78rem;
+      font-weight: 700;
+      padding: 0.4rem 0.8rem;
+      border-radius: var(--radius-sm);
+      text-decoration: none;
+      transition: all 0.15s;
+    }
+    .btn-admin-link:hover {
+      background: #e2e8f0;
+      border-color: var(--border-hover);
+    }
+
+    /* --- MAIN PDP CONTAINER --- */
+    .product-showcase-container {
+      max-width: 1280px;
+      margin: 1.5rem auto 2.5rem;
+      padding: 0 1.5rem;
+      width: 100%;
+    }
+
+    .pdp-grid {
+      display: grid;
+      grid-template-columns: 1.15fr 1fr;
+      gap: 2.5rem;
+      align-items: start;
+    }
+
+    /* --- LEFT: PRODUCT VISUAL GALLERY --- */
+    .gallery-column {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-xl);
+      padding: 1.5rem;
+      box-shadow: var(--shadow-sm);
+      position: sticky;
+      top: 85px;
+    }
+    .gallery-main-viewport {
+      width: 100%;
+      height: 480px;
+      background: #090d16;
+      border: 1px solid #1e293b;
+      border-radius: var(--radius-lg);
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: zoom-in;
+      box-shadow: inset 0 2px 8px rgba(0,0,0,0.4);
+    }
+    .gallery-main-img {
+      max-width: 100%;
+      max-height: 100%;
+      width: auto;
+      height: auto;
+      object-fit: contain;
+      transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.2s ease;
+    }
+    .gallery-main-img:hover {
+      transform: scale(1.02);
+    }
+    .gallery-badge-overlay {
+      position: absolute;
+      top: 14px;
+      left: 14px;
+      background: rgba(15, 23, 42, 0.85);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #ffffff;
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 0.35rem 0.75rem;
+      border-radius: 9999px;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      pointer-events: none;
+    }
+    .gallery-zoom-hint {
+      position: absolute;
+      bottom: 14px;
+      right: 14px;
+      background: rgba(15, 23, 42, 0.85);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #94a3b8;
+      font-size: 0.72rem;
+      font-weight: 600;
+      padding: 0.3rem 0.65rem;
+      border-radius: var(--radius-sm);
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      pointer-events: none;
+    }
+
+    /* Thumbnail Carousel Grid */
+    .thumbnails-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 0.75rem;
+      margin-top: 1rem;
+    }
+    .thumb-card {
+      border: 2px solid var(--border);
+      border-radius: var(--radius-md);
+      background: #090d16;
+      height: 75px;
+      padding: 4px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+      overflow: hidden;
+      position: relative;
+    }
+    .thumb-card img {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: cover;
+      border-radius: 6px;
+      opacity: 0.82;
+      transition: opacity 0.15s;
+    }
+    .thumb-card:hover {
+      border-color: var(--primary-border);
+      transform: translateY(-2px);
+    }
+    .thumb-card:hover img {
+      opacity: 1;
+    }
+    .thumb-card.active {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 2px var(--primary-glow);
+    }
+    .thumb-card.active img {
+      opacity: 1;
+    }
+
+    /* --- RIGHT: PRODUCT BUY BOX --- */
+    .details-column {
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    .product-h1 {
+      font-family: 'Outfit', sans-serif;
+      font-size: 2.15rem;
+      font-weight: 800;
+      line-height: 1.2;
+      color: var(--text-heading);
+      letter-spacing: -0.025em;
+    }
+
+    /* Core Features Checklist */
+    .feature-checklist {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.65rem;
+      margin: 0.35rem 0;
+    }
+    .feature-checklist li {
+      font-size: 0.86rem;
+      color: var(--text);
+      display: flex;
+      align-items: flex-start;
+      gap: 0.65rem;
+      line-height: 1.45;
+    }
+    .feature-checklist li .chk {
+      color: var(--success);
+      font-weight: 900;
+      font-size: 0.95rem;
+      margin-top: 1px;
+      flex-shrink: 0;
+    }
+
+    /* --- THE DEMO CHECKOUT BUY BOX CARD --- */
+    .buy-box-card {
+      background: #ffffff;
+      border: 2px solid #bfdbfe;
+      border-radius: var(--radius-xl);
+      padding: 1.75rem;
+      box-shadow: var(--shadow-md);
+      position: relative;
+    }
+    .buy-box-card::before {
+      content: "";
+      position: absolute;
+      top: -2px;
+      left: 10%;
+      right: 10%;
+      height: 3px;
+      background: linear-gradient(90deg, #2563eb, #38bdf8, #2563eb);
+      border-radius: 3px;
+    }
+
+    .pricing-header {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      margin-bottom: 0.5rem;
+    }
+    .price-main {
+      font-family: 'Outfit', sans-serif;
+      font-size: 2.6rem;
+      font-weight: 900;
+      color: #0f172a;
+      letter-spacing: -0.03em;
+      line-height: 1;
+    }
+    .price-badge-demo {
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      color: #2563eb;
+      font-size: 0.72rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      padding: 0.25rem 0.65rem;
+      border-radius: 9999px;
+      letter-spacing: 0.04em;
+    }
+
+    .pricing-note {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      margin-bottom: 1.25rem;
+    }
+
+    /* AMOUNT SELECTOR CHIPS */
+    .amount-selector-title {
+      font-size: 0.78rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      margin-bottom: 0.65rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .amount-selector-chips {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+    .chip-btn {
+      padding: 0.55rem 0.4rem;
+      font-size: 0.85rem;
+      font-weight: 800;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border);
+      background: #ffffff;
+      color: var(--text);
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .chip-btn:hover {
+      border-color: var(--primary-border);
+      background: var(--primary-light);
+      color: var(--primary);
+    }
+    .chip-btn.active {
+      border-color: var(--primary);
+      background: var(--primary);
+      color: #ffffff;
+      box-shadow: 0 2px 8px var(--primary-glow);
+    }
+
+    /* CUSTOM AMOUNT INPUT ROW */
+    .custom-amount-box {
+      margin-bottom: 1.25rem;
+      background: var(--bg-card-subtle);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 0.75rem 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+    }
+    .custom-amount-label {
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--text);
+      white-space: nowrap;
+    }
+    .custom-input-wrap {
+      display: flex;
+      align-items: center;
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 0.35rem 0.65rem;
+      width: 150px;
+      transition: border-color 0.15s;
+    }
+    .custom-input-wrap:focus-within {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px var(--primary-light);
+    }
+    .custom-currency-symbol {
+      font-weight: 800;
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      margin-right: 4px;
+    }
+    .custom-amount-input {
+      border: none;
+      outline: none;
+      font-size: 1rem;
+      font-weight: 800;
+      color: var(--text-heading);
+      width: 100%;
+    }
+
+    /* PRIMARY BUY BUTTON */
+    .btn-buy-primary {
+      width: 100%;
+      background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+      color: #ffffff;
+      border: none;
+      border-radius: var(--radius-md);
+      padding: 1.05rem 1.5rem;
+      font-size: 1.08rem;
+      font-weight: 800;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.65rem;
+      box-shadow: var(--shadow-glow);
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      letter-spacing: -0.01em;
+    }
+    .btn-buy-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 28px -4px rgba(37, 99, 235, 0.38);
+      background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%);
+    }
+    .btn-buy-primary:active {
+      transform: translateY(0);
+    }
+    .btn-buy-primary:disabled {
+      opacity: 0.65;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .security-guarantee-note {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      text-align: center;
+      margin-top: 0.85rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.4rem;
+    }
+
+    /* VALUE PROPOSITION BADGES GRID */
+    .value-props-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.75rem;
+      margin-top: 1.25rem;
+      padding-top: 1.25rem;
+      border-top: 1px solid var(--border);
+    }
+    .prop-pill {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+    .prop-pill .icon {
+      font-size: 0.95rem;
+    }
+
+    /* --- ARCHITECTURE REQUIREMENTS & TRADEOFFS SECTION --- */
+    .requirements-section {
+      max-width: 1280px;
+      margin: 2.5rem auto 1.5rem;
+      padding: 0 1.5rem;
+      width: 100%;
+    }
+    .req-banner {
+      background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+      border: 2px solid #fcd34d;
+      border-radius: var(--radius-xl);
+      padding: 2rem;
+      box-shadow: var(--shadow-sm);
+    }
+    .req-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 1.5rem;
+      margin-top: 1.25rem;
+    }
+    .req-card {
+      background: #ffffff;
+      border: 1px solid #fde68a;
+      border-radius: var(--radius-lg);
+      padding: 1.5rem;
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .req-card.danger-card {
+      border-color: #fca5a5;
+    }
+    .req-card.conditional-card {
+      border-color: #fed7aa;
+    }
+    .req-pill-badge {
+      font-size: 0.7rem;
+      font-weight: 800;
+      padding: 0.2rem 0.55rem;
+      border-radius: 9999px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    /* --- CAPABILITIES SECTION --- */
+    .specs-section {
+      max-width: 1280px;
+      margin: 2rem auto;
+      padding: 0 1.5rem;
+      width: 100%;
+    }
+    .section-heading-row {
+      text-align: center;
+      max-width: 720px;
+      margin: 0 auto 2.5rem;
+    }
+    .section-badge {
+      display: inline-block;
+      font-size: 0.75rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      color: var(--primary);
+      background: var(--primary-light);
+      padding: 0.25rem 0.75rem;
+      border-radius: 9999px;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.5rem;
+    }
+    .section-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 2rem;
+      font-weight: 800;
+      color: var(--text-heading);
+      letter-spacing: -0.025em;
+    }
+
+    .features-quad-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 3rem;
+    }
+    .quad-card {
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 1.5rem;
+      box-shadow: var(--shadow-sm);
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .quad-card:hover {
+      transform: translateY(-3px);
+      box-shadow: var(--shadow-md);
+      border-color: var(--border-hover);
+    }
+    .quad-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: var(--radius-md);
+      background: var(--primary-light);
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.35rem;
+      margin-bottom: 1rem;
+    }
+    .quad-title {
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: var(--text-heading);
+      margin-bottom: 0.4rem;
+    }
+    .quad-desc {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    /* COMPARISON TABLE */
+    .comparison-card {
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-xl);
+      padding: 2rem;
+      box-shadow: var(--shadow-sm);
+      margin-bottom: 3rem;
+      overflow-x: auto;
+    }
+    .comparison-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.88rem;
+    }
+    .comparison-table th {
+      text-align: left;
+      padding: 0.85rem 1rem;
+      background: var(--bg-card-subtle);
+      color: var(--text-heading);
+      font-weight: 700;
+      border-bottom: 2px solid var(--border);
+    }
+    .comparison-table td {
+      padding: 0.85rem 1rem;
+      border-bottom: 1px solid var(--border);
+      color: var(--text-body);
+    }
+    .comparison-table tr:last-child td {
+      border-bottom: none;
+    }
+    .comparison-table tr:hover td {
+      background: rgba(37, 99, 235, 0.02);
+    }
+    .comparison-table .col-highlight {
+      background: rgba(37, 99, 235, 0.05);
+      color: #1d4ed8;
+      font-weight: 600;
+    }
+    .comparison-table th.col-highlight {
+      background: rgba(37, 99, 235, 0.08);
+      color: #1d4ed8;
+      border-bottom-color: #3b82f6;
+    }
+
+    /* FOOTER */
+    footer {
+      background: #020617;
+      border-top: 1px solid #1e293b;
+      padding: 2.5rem 1.5rem;
+      margin-top: auto;
+    }
+    .footer-inner {
+      max-width: 1280px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1.5rem;
+    }
+    .footer-brand {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    /* LIGHTBOX MODAL */
+    .lightbox-modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(2, 6, 23, 0.92);
+      backdrop-filter: blur(8px);
+      z-index: 999999;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+      cursor: zoom-out;
+    }
+    .lightbox-modal.active {
+      display: flex;
+    }
+    .lightbox-close-btn {
+      position: absolute;
+      top: 1.5rem;
+      right: 1.5rem;
+      background: rgba(255, 255, 255, 0.15);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      color: #ffffff;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      font-size: 1.25rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s;
+    }
+    .lightbox-close-btn:hover {
+      background: rgba(255, 255, 255, 0.3);
+    }
+    .lightbox-img {
+      max-width: 90vw;
+      max-height: 85vh;
+      border-radius: var(--radius-lg);
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+      cursor: default;
+      object-fit: contain;
+    }
+
+    /* CELEBRATION MODAL */
+    .celebration-modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(2, 6, 23, 0.8);
+      backdrop-filter: blur(6px);
+      z-index: 999998;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+    }
+    .celebration-modal.active {
+      display: flex;
+    }
+    .celebration-card {
+      background: #ffffff;
+      border-radius: var(--radius-xl);
+      padding: 2rem;
+      max-width: 440px;
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+      animation: popIn 0.25s ease-out;
+    }
+    @keyframes popIn {
+      from { transform: scale(0.9); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+    .celebration-icon {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      background: #dcfce7;
+      color: #16a34a;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      font-weight: 800;
+      margin: 0 auto 1rem;
+    }
+    .receipt-box {
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 1rem;
+      margin: 1.25rem 0;
+      text-align: left;
+      font-size: 0.85rem;
+    }
+    .receipt-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.35rem 0;
+      border-bottom: 1px dashed var(--border);
+    }
+    .receipt-row:last-child {
+      border-bottom: none;
+    }
+
+    /* RESPONSIVE BREAKPOINTS */
+    @media (max-width: 1024px) {
+      .pdp-grid {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+      }
+      .gallery-main-viewport {
+        height: 380px;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .top-announcement {
+        font-size: 0.72rem;
+        padding: 0.4rem 0.5rem;
+        gap: 0.35rem;
+      }
+      header {
+        padding: 0.75rem 1rem;
+      }
+      .header-inner {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.75rem;
+      }
+      .product-showcase-container {
+        padding: 1rem 0.75rem;
+      }
+      .gallery-main-viewport {
+        height: 260px;
+      }
+      .product-h1 {
+        font-size: 1.45rem;
+      }
+      .buy-box-card {
+        padding: 1.25rem 1rem;
+      }
+      .price-main {
+        font-size: 1.85rem;
+      }
+      .amount-selector-chips {
+        gap: 0.4rem;
+      }
+      .chip-btn {
+        padding: 0.45rem 0.65rem;
+        font-size: 0.8rem;
+      }
+      .thumbnails-grid {
+        gap: 0.35rem;
+        margin-top: 0.75rem;
+      }
+      .thumb-card {
+        height: 52px;
+        border-radius: var(--radius-sm);
+        padding: 2px;
+      }
+      .requirements-section {
+        padding: 0 0.85rem;
+        margin: 1.5rem auto 1rem;
+      }
+      .req-banner {
+        padding: 1.15rem 1rem;
+        border-radius: var(--radius-lg);
+      }
+      .req-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+        margin-top: 1rem;
+      }
+      .req-card {
+        padding: 1.1rem;
+      }
+      .specs-section {
+        padding: 0 0.85rem;
+        margin: 1.5rem auto;
+      }
+      .section-title {
+        font-size: 1.45rem;
+      }
+      .features-quad-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+        margin-bottom: 2rem;
+      }
+      .comparison-card {
+        padding: 1.15rem 0.85rem;
+        border-radius: var(--radius-lg);
+        margin-bottom: 2rem;
+      }
+      .comparison-table th, .comparison-table td {
+        padding: 0.65rem 0.5rem;
+        font-size: 0.8rem;
+      }
+      footer {
+        padding: 1.75rem 1rem;
+      }
+      .footer-inner {
+        flex-direction: column;
+        text-align: center;
+        gap: 1rem;
+        justify-content: center;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- TOP ANNOUNCEMENT BAR -->
+  <div class="top-announcement">
+    <span>✨ <strong>YOUPI Gateway</strong> Demo Powered by YOUPI PG</span>
+    <span style="opacity:0.4;">|</span>
+    <span>Zero Platform Fees · Direct P2P UPI Settlement</span>
+  </div>
+
+  <!-- STICKY MAIN HEADER -->
+  <header>
+    <div class="header-inner">
+      <a href="/" class="brand-group">
+        <div class="brand-logo-badge">⚡</div>
+        <div class="brand-text">
+          <span class="brand-title">YOUPI Store</span>
+          <span class="brand-subtitle">Official Payment Gateway Demo</span>
+        </div>
+      </a>
+      <nav style="display:flex; align-items:center; gap:0.75rem; flex-wrap:wrap;">
+        <a href="#purchase" class="btn-admin-link">🛒 Buy Demo Pack</a>
+        <a href="#outcome-pages" class="btn-admin-link">🚦 Outcome Pages</a>
+        <a href="#developer-guide" class="btn-admin-link" style="background:#eff6ff; color:#2563eb; border-color:#bfdbfe;">📖 Developer Guide</a>
+        <a href="/openapi.yaml" target="_blank" class="btn-admin-link">⚙️ OpenAPI</a>
+        <a href="/wallet" class="btn-admin-link" style="background:#1e293b; color:#ffffff; border-color:#334155;">🪙 Wallet (<span id="topWalletBalance">50</span>)</a>
+      </nav>
+    </div>
+  </header>
+  <!-- MAIN E-COMMERCE PRODUCT DETAIL PAGE -->
+  <main class="product-showcase-container">
+    <div class="pdp-grid">
+
+      <!-- LEFT COLUMN: INTERACTIVE VISUAL GALLERY -->
+      <div class="gallery-column" id="gallery">
+        <div class="gallery-main-viewport" onclick="openLightbox()" title="Click to view full-resolution screenshot">
+          <img id="mainGalleryImg" class="gallery-main-img" src="/assets/gateway_pc_checkout.png?v=2" alt="YOUPI PG Desktop Checkout View" />
+          <div class="gallery-zoom-hint">
+            <span>🔍</span>
+            <span>Click to Enlarge</span>
+          </div>
+        </div>
+
+        <!-- 5 High-Res Gateway Screenshots Carousel -->
+        <div class="thumbnails-grid">
+          <div class="thumb-card active" onclick="switchGalleryPhoto(0, '/assets/gateway_pc_checkout.png?v=2', 'Desktop 2-Column Checkout', 'Authentic desktop 2-column checkout frame with real-time dynamic QR, clean card at counter, live order summary, and verified merchant branding.')">
+            <img src="/assets/gateway_pc_checkout.png?v=2" alt="PC Checkout" />
+          </div>
+          <div class="thumb-card" onclick="switchGalleryPhoto(1, '/assets/gateway_mobile_checkout.png?v=2', 'Mobile Instant Sheet &amp; UPI Intent', 'Native fluid mobile checkout bottom sheet with instant UPI app deep-linking (GPay, PhonePe, Paytm, CRED).')">
+            <img src="/assets/gateway_mobile_checkout.png?v=2" alt="Mobile Checkout" />
+          </div>
+          <div class="thumb-card" onclick="switchGalleryPhoto(2, '/assets/gateway_merchant_operations.png?v=2', 'Merchant Operations &amp; Live Slots Hub', 'Crisp bright white operations dashboard with real-time slot allocation, floating cashier till dock, and observers status.')">
+            <img src="/assets/gateway_merchant_operations.png?v=2" alt="Operations Hub" />
+          </div>
+          <div class="thumb-card" onclick="switchGalleryPhoto(3, '/assets/gateway_developer_dark_hub.png?v=2', 'Developer Hub (Real Dark Mode)', 'Authentic obsidian real dark mode with multi-service supervisor, live host ports, and aggregate streaming terminal.')">
+            <img src="/assets/gateway_developer_dark_hub.png?v=2" alt="Developer Hub" />
+          </div>
+          <div class="thumb-card" onclick="switchGalleryPhoto(4, '/assets/gateway_whitelabel_customizer.png?v=2', 'White-Label Customizer &amp; Mockup', 'Live smartphone reflection with instant brand logo, custom color palette, trust seals, and conversion banners.')">
+            <img src="/assets/gateway_whitelabel_customizer.png?v=2" alt="White-Label Customizer" />
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT COLUMN: PRODUCT BUY BOX FIRST (PRIORITIZED DEMO), THEN CONTENT BELOW IT -->
+      <div class="details-column">
+        <div class="product-header-block">
+          <h1 class="product-h1">YOUPI PG — Small Scale Self-Hosted UPI Payment Gateway</h1>
+          <p style="color:var(--text-muted); font-size:0.92rem; margin-top:0.35rem; font-weight:600;">
+            Direct-to-bank sovereign settlement. Test live checkout with zero intermediary fees.
+          </p>
+        </div>
+
+        <!-- THE BUY BOX CARD: PRIORITIZED FIRST -->
+        <div class="buy-box-card" id="purchase">
+          <div class="pricing-header">
+            <div>
+              <span style="font-size:0.8rem; font-weight:700; color:var(--text-muted); text-transform:uppercase;">Live Demo Checkout Price</span>
+              <div class="price-main" id="displayPrice">₹1.00</div>
+            </div>
+            <span class="price-badge-demo">1-Tap Live Checkout</span>
+          </div>
+
+          <p class="pricing-note">
+            Test real end-to-end payment gateway execution. Default is <strong>₹1.00</strong> for instant testing, or select/type any custom amount:
+          </p>
+
+          <!-- Quick Preset Chips -->
+          <div class="amount-selector-title">
+            <span>Quick Select Test Amount</span>
+          </div>
+          <div class="amount-selector-chips">
+            <button type="button" class="chip-btn active" onclick="selectAmount(1.00, this)">₹1 (Demo)</button>
+            <button type="button" class="chip-btn" onclick="selectAmount(10.00, this)">₹10</button>
+            <button type="button" class="chip-btn" onclick="selectAmount(100.00, this)">₹100</button>
+            <button type="button" class="chip-btn" onclick="selectAmount(499.00, this)">₹499</button>
+            <button type="button" class="chip-btn" onclick="selectAmount(1499.00, this)">₹1,499</button>
+          </div>
+
+          <!-- Custom Amount Input -->
+          <div class="custom-amount-box">
+            <span class="custom-amount-label">Or Custom Amount:</span>
+            <div class="custom-input-wrap">
+              <span class="custom-currency-symbol">₹</span>
+              <input type="number" id="customAmountInput" class="custom-amount-input" value="1.00" min="1" step="any" oninput="handleCustomAmountInput(this.value)" />
+            </div>
+          </div>
+
+          <!-- PRIMARY BUY BUTTON (Official One-Button Integration Target) -->
+          <button type="button"
+                  class="btn-buy-primary"
+                  id="btnInitiateCheckout"
+                  data-youpi-pay
+                  data-order-id=""
+                  data-amount="1.00"
+                  data-currency="INR"
+                  data-name="YOUPI Store"
+                  data-description="YOUPI PG Enterprise Suite Top-Up"
+                  data-success-url="/order-success"
+                  data-failed-url="/order-failed"
+                  data-suspicious-url="/order-suspicious"
+                  data-expired-url="/order-expired"
+                  data-cancelled-url="/order-cancelled"
+                  onclick="startGatewayPurchase()">
+            <span>⚡ Buy Now with YOUPI PG · <span id="btnAmountDisplay">₹1.00</span></span>
+          </button>
+
+          <div class="security-guarantee-note">
+            <span>🔒</span>
+            <span>Bank-Grade 256-Bit SSL · Direct UPI Settlement · 0% Deductions</span>
+          </div>
+
+          <!-- Value Proposition Grid -->
+          <div class="value-props-grid">
+            <div class="prop-pill"><span class="icon">⚡</span> Sub-second QR Code</div>
+            <div class="prop-pill"><span class="icon">🛡️</span> Direct P2P Settlement</div>
+            <div class="prop-pill"><span class="icon">💬</span> WhatsApp OTP Auth</div>
+            <div class="prop-pill"><span class="icon">📱</span> Bank SMS Parsing</div>
+            <div class="prop-pill"><span class="icon">📧</span> Gmail Parsing</div>
+            <div class="prop-pill"><span class="icon">🔒</span> Browser Fingerprinting</div>
+            <div class="prop-pill"><span class="icon">🛑</span> Instant Fraud Ban</div>
+            <div class="prop-pill"><span class="icon">🏪</span> Cashier POS Till Desk</div>
+          </div>
+        </div>
+
+        <!-- CONTENT BELOW THE DEMO: Security Features Checklist -->
+        <div class="security-checklist-block" style="background:#ffffff; border:1px solid var(--border); border-radius:var(--radius-lg); padding:1.25rem 1.5rem; box-shadow:var(--shadow-sm);">
+          <div style="font-size:0.8rem; font-weight:800; text-transform:uppercase; letter-spacing:0.05em; color:var(--text-muted); margin-bottom:0.75rem;">
+            Security &amp; Core Capabilities
+          </div>
+          <ul class="feature-checklist">
+            <li>
+              <span class="chk">✓</span>
+              <span><strong>0% Gateway Fees:</strong> Direct bank settlement with zero aggregator fees.</span>
+            </li>
+            <li>
+              <span class="chk">✓</span>
+              <span><strong>WhatsApp-Based OTP Auth:</strong> Verifies buyers with WhatsApp OTP before checkout.</span>
+            </li>
+            <li>
+              <span class="chk">✓</span>
+              <span><strong>SMS &amp; Email Parsing:</strong> Automatically parses incoming bank SMS and Gmail alerts to verify payments.</span>
+            </li>
+            <li>
+              <span class="chk">✓</span>
+              <span><strong>Browser Fingerprinting:</strong> Identifies buyer devices and flags high-risk or repeat offenders.</span>
+            </li>
+            <li>
+              <span class="chk">✓</span>
+              <span><strong>Bans Fraudulent Users Instantly:</strong> Automatically bans fraudulent and suspicious users immediately.</span>
+            </li>
+            <li>
+              <span class="chk">✓</span>
+              <span><strong>Strict Payment Verification Parameters:</strong> Strictly verifies payment amount, transaction UTR, and timestamp.</span>
+            </li>
+            <li>
+              <span class="chk">✓</span>
+              <span><strong>POS Cashier Counter Desk:</strong> Counter checkout for walk-in cash and card payments.</span>
+            </li>
+            <li>
+              <span class="chk">✓</span>
+              <span><strong>100% White-Label:</strong> Custom merchant domain, logo, and branding.</span>
+            </li>
+          </ul>
+        </div>
+
+      </div>
+    </div>
+  </main>
+
+  <!-- CRITICAL ARCHITECTURAL REQUIREMENTS & SECURITY FLAW SECTION -->
+  <section class="requirements-section" id="requirements">
+    <div class="req-banner">
+      <div style="display:flex; align-items:center; gap:0.75rem; margin-bottom:1rem;">
+        <span style="font-size:1.75rem;">⚠️</span>
+        <div>
+          <h2 style="font-family:'Outfit',sans-serif; font-size:1.45rem; font-weight:800; color:#78350f; letter-spacing:-0.02em;">
+            Security Flaw &amp; System Requirements
+          </h2>
+          <p style="font-size:0.85rem; color:#92400e; margin-top:0.2rem;">
+            Key operational limitations, bank notification rules, and device compatibility for YOUPI PG.
+          </p>
+        </div>
+      </div>
+
+      <div class="req-grid">
+        
+        <!-- CARD 1: THE SECURITY FLAW / LIMITATION -->
+        <div class="req-card">
+          <div>
+            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:0.75rem;">
+              <div style="display:flex; align-items:center; gap:0.5rem;">
+                <span style="font-size:1.25rem;">⏳</span>
+                <strong style="font-size:1.05rem; color:#0f172a;">Security Flaw: Single-Session UPI Queue</strong>
+              </div>
+              <span class="req-pill-badge" style="background:#eff6ff; color:#2563eb; border:1px solid #bfdbfe;">SECURITY FLAW</span>
+            </div>
+            <p style="font-size:0.86rem; color:#334155; line-height:1.55;">
+              <strong>UPI works on a strict queue system to ensure topmost security and prevent payment mismatches.</strong> Only one user can pay on a VPA at a time. Other buyers must wait in a queue until the active transaction completes.
+            </p>
+          </div>
+          <div style="margin-top:0.85rem; padding:0.65rem 0.85rem; background:#f8fafc; border-left:3px solid #2563eb; border-radius:4px; font-size:0.78rem; color:#475569;">
+            🔒 <em>Why this exists:</em> Guarantees every payment matches the exact order with 100% security and zero payment mismatch.
+          </div>
+        </div>
+
+        <!-- CARD 2: BANK SMS & GMAIL NOTIFICATION MANDATE (STRICT PREREQUISITE) -->
+        <div class="req-card danger-card">
+          <div>
+            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:0.75rem;">
+              <div style="display:flex; align-items:center; gap:0.5rem;">
+                <span style="font-size:1.25rem;">🚨</span>
+                <strong style="font-size:1.05rem; color:#991b1b;">Mandatory Requirement: Bank SMS &amp; Gmail Alerts</strong>
+              </div>
+              <span class="req-pill-badge" style="background:#fef2f2; color:#dc2626; border:1px solid #fecaca;">MANDATORY REQUIREMENT</span>
+            </div>
+            <p style="font-size:0.86rem; color:#334155; line-height:1.55;">
+              <strong>Your bank must push messages to Gmail and SMS. This is mandatory even for ₹1 transactions. Without it, it does not work.</strong> The gateway parses incoming SMS and Gmail alerts to automatically verify payments.
+            </p>
+          </div>
+          <div style="margin-top:0.85rem; padding:0.65rem 0.85rem; background:#fef2f2; border-left:3px solid #dc2626; border-radius:4px; font-size:0.78rem; color:#991b1b;">
+            ⚠️ <em>Requirement:</em> Real-time SMS and email alerts must be active on your bank account for all transactions.
+          </div>
+        </div>
+
+        <!-- CARD 3: CONDITIONAL DEVICE REQUIREMENT -->
+        <div class="req-card conditional-card">
+          <div>
+            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:0.75rem;">
+              <div style="display:flex; align-items:center; gap:0.5rem;">
+                <span style="font-size:1.25rem;">📱</span>
+                <strong style="font-size:1.05rem; color:#9a3412;">Conditional Requirement: Device Setup</strong>
+              </div>
+              <span class="req-pill-badge" style="background:#fff7ed; color:#c2410c; border:1px solid #fed7aa;">CONDITIONAL REQUIREMENT</span>
+            </div>
+            <p style="font-size:0.86rem; color:#334155; line-height:1.55;">
+              <strong>If you want Gmail + SMS verification, you need an Android device.</strong> Or if you only need Gmail verification, you can use an iPhone. <strong>SMS verification is not supported by iPhones.</strong>
+            </p>
+            <div style="display:flex; flex-direction:column; gap:0.45rem; margin-top:0.75rem;">
+              <div style="display:flex; align-items:center; justify-content:space-between; padding:0.45rem 0.65rem; background:#f0fdf4; border:1px solid #bbf7d0; border-radius:6px; font-size:0.78rem;">
+                <span style="color:#166534; font-weight:700;">🟢 Gmail + SMS Verification</span>
+                <span style="color:#15803d; font-weight:800; font-size:0.74rem; background:#dcfce7; padding:2px 8px; border-radius:4px;">Android Device Required</span>
+              </div>
+              <div style="display:flex; align-items:center; justify-content:space-between; padding:0.45rem 0.65rem; background:#f8fafc; border:1px solid #e2e8f0; border-radius:6px; font-size:0.78rem;">
+                <span style="color:#334155; font-weight:700;">🔵 Gmail Verification Only</span>
+                <span style="color:#0f172a; font-weight:800; font-size:0.74rem; background:#e2e8f0; padding:2px 8px; border-radius:4px;">iPhone Supported</span>
+              </div>
+            </div>
+          </div>
+          <div style="margin-top:0.85rem; padding:0.65rem 0.85rem; background:#fff7ed; border-left:3px solid #ea580c; border-radius:4px; font-size:0.78rem; color:#9a3412;">
+            ⚠️ <em>Important Limitation:</em> SMS verification is not supported by iPhones.
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- TECHNICAL SPECIFICATIONS & QUAD CARDS -->
+  <section class="specs-section" id="features">
+    <div class="section-heading-row">
+      <span class="section-badge">Gateway Capabilities</span>
+      <h2 class="section-title">Built For Small Scale Businesses</h2>
+    </div>
+
+    <div class="features-quad-grid">
+      <div class="quad-card">
+        <div class="quad-icon">⚡</div>
+        <h3 class="quad-title">0% Gateway Fees</h3>
+        <p class="quad-desc">
+          Direct bank settlement with zero aggregator fees. 100% of the funds go directly into your account.
+        </p>
+      </div>
+
+      <div class="quad-card">
+        <div class="quad-icon">💬</div>
+        <h3 class="quad-title">WhatsApp OTP Auth</h3>
+        <p class="quad-desc">
+          Verifies buyers with WhatsApp OTP before checkout to prevent fake orders and confirm valid mobile numbers.
+        </p>
+      </div>
+
+      <div class="quad-card">
+        <div class="quad-icon">🔒</div>
+        <h3 class="quad-title">Browser Fingerprinting &amp; Instant Bans</h3>
+        <p class="quad-desc">
+          Identifies buyer devices and flags high-risk or repeat offenders. Automatically bans fraudulent users immediately.
+        </p>
+      </div>
+
+      <div class="quad-card">
+        <div class="quad-icon">📱</div>
+        <h3 class="quad-title">SMS &amp; Email Parsing</h3>
+        <p class="quad-desc">
+          Parses incoming bank SMS and Gmail alerts to automatically verify payments and confirm transactions in real time.
+        </p>
+      </div>
+    </div>
+
+    <!-- COMPARISON TABLE -->
+    <div class="comparison-card" id="comparison">
+      <h3 style="font-size:1.3rem; font-weight:800; margin-bottom:1.25rem;">Why Merchants Switch to YOUPI PG</h3>
+      <table class="comparison-table">
+        <thead>
+          <tr>
+            <th>Architecture Feature</th>
+            <th class="col-highlight">⚡ YOUPI PG (Self-Hosted)</th>
+            <th>Traditional Gateways (Razorpay / Stripe)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Transaction Fee</strong></td>
+            <td class="col-highlight"><strong>0% (Zero Fees Forever)</strong></td>
+            <td>2.0% – 3.0% + 18% GST</td>
+          </tr>
+          <tr>
+            <td><strong>Settlement Window</strong></td>
+            <td class="col-highlight"><strong>Instant (Direct to Bank)</strong></td>
+            <td>T+2 to T+3 Business Days</td>
+          </tr>
+          <tr>
+            <td><strong>Customer Authentication</strong></td>
+            <td class="col-highlight"><strong>WhatsApp-Based OTP Verification</strong></td>
+            <td>SMS / Email OTP Only</td>
+          </tr>
+          <tr>
+            <td><strong>Fraud Mitigation</strong></td>
+            <td class="col-highlight"><strong>Browser Fingerprinting &amp; Instant Bans</strong></td>
+            <td>Generic Risk Scoring</td>
+          </tr>
+          <tr>
+            <td><strong>Payment Verification</strong></td>
+            <td class="col-highlight"><strong>Parses Bank SMS &amp; Gmail Alerts</strong></td>
+            <td>Aggregator Dependent</td>
+          </tr>
+          <tr>
+            <td><strong>White-Label Customization</strong></td>
+            <td class="col-highlight"><strong>100% Brand Control &amp; Custom Domain</strong></td>
+            <td>Aggregator Branding Mandatory</td>
+          </tr>
+          <tr>
+            <td><strong>POS Counter &amp; Till Support</strong></td>
+            <td class="col-highlight"><strong>Included (Cash &amp; Card Modalities)</strong></td>
+            <td>Separate Hardware / High Add-On Cost</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <!-- DEMO MERCHANT OUTCOME PAGES SHOWCASE                         -->
+  <!-- ============================================================ -->
+  <section class="specs-section" id="outcome-pages" style="background:#ffffff; border-top:1px solid var(--border); border-bottom:1px solid var(--border); padding:3.5rem 1.5rem;">
+    <div style="max-width:1280px; margin:0 auto;">
+      <div class="section-heading-row" style="text-align:center; margin-bottom:2.5rem;">
+        <span class="section-badge" style="background:rgba(37,99,235,0.1); color:#2563eb; border:1px solid rgba(37,99,235,0.25);">Merchant Reference Pages</span>
+        <h2 class="section-title" style="font-size:2rem; margin-top:0.5rem;">Standardized Gateway Outcome Demonstrations</h2>
+        <p style="color:var(--text-muted); max-width:700px; margin:0.5rem auto 0; font-size:0.95rem;">
+          YOUPI PG communicates 5 distinct deterministic payment outcomes. Below are the live reference merchant pages demonstrating how customer experiences should be rendered.
+        </p>
+      </div>
+
+      <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(230px, 1fr)); gap:1.25rem;">
+        <!-- Card 1: SUCCESS -->
+        <div style="background:#f0fdf4; border:1px solid #bbf7d0; border-radius:14px; padding:1.5rem; display:flex; flex-direction:column; justify-content:space-between;">
+          <div>
+            <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.75rem;">
+              <span style="display:inline-flex; align-items:center; justify-content:center; width:28px; height:28px; border-radius:50%; background:#22c55e; color:#fff; font-size:0.9rem; font-weight:800;">✓</span>
+              <strong style="color:#166534; font-size:1.1rem;">SUCCESS</strong>
+            </div>
+            <p style="font-size:0.85rem; color:#15803d; line-height:1.5; margin-bottom:1rem;">
+              Payment verified by banking observers. Order marked paid and provisioned.
+            </p>
+          </div>
+          <a href="/order-success?order_id=ORD-SUCCESS-TEST&amount=499.00&utr=987654321012&mode=UPI" class="btn" style="background:#16a34a; color:#ffffff; font-size:0.85rem; padding:0.6rem; text-decoration:none; text-align:center; border-radius:8px; font-weight:700;">
+            Preview Success Page →
+          </a>
+        </div>
+
+        <!-- Card 2: FAILED -->
+        <div style="background:#fef2f2; border:1px solid #fecaca; border-radius:14px; padding:1.5rem; display:flex; flex-direction:column; justify-content:space-between;">
+          <div>
+            <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.75rem;">
+              <span style="display:inline-flex; align-items:center; justify-content:center; width:28px; height:28px; border-radius:50%; background:#ef4444; color:#fff; font-size:0.9rem; font-weight:800;">✕</span>
+              <strong style="color:#991b1b; font-size:1.1rem;">FAILED</strong>
+            </div>
+            <p style="font-size:0.85rem; color:#b91c1c; line-height:1.5; margin-bottom:1rem;">
+              Transaction declined or not confirmed. Informs customer no funds were lost.
+            </p>
+          </div>
+          <a href="/order-failed?order_id=ORD-FAILED-TEST&reason=UPI_CONFIRMATION_TIMEOUT" class="btn" style="background:#dc2626; color:#ffffff; font-size:0.85rem; padding:0.6rem; text-decoration:none; text-align:center; border-radius:8px; font-weight:700;">
+            Preview Failed Page →
+          </a>
+        </div>
+
+        <!-- Card 3: SUSPICIOUS -->
+        <div style="background:#fffbeb; border:1px solid #fde68a; border-radius:14px; padding:1.5rem; display:flex; flex-direction:column; justify-content:space-between;">
+          <div>
+            <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.75rem;">
+              <span style="display:inline-flex; align-items:center; justify-content:center; width:28px; height:28px; border-radius:50%; background:#f59e0b; color:#fff; font-size:0.9rem; font-weight:800;">⚠</span>
+              <strong style="color:#92400e; font-size:1.1rem;">SUSPICIOUS</strong>
+            </div>
+            <p style="font-size:0.85rem; color:#b45309; line-height:1.5; margin-bottom:1rem;">
+              Flagged by gateway security systems. Held for manual compliance review.
+            </p>
+          </div>
+          <a href="/order-suspicious?order_id=ORD-SUSPICIOUS-TEST" class="btn" style="background:#d97706; color:#ffffff; font-size:0.85rem; padding:0.6rem; text-decoration:none; text-align:center; border-radius:8px; font-weight:700;">
+            Preview Review Page →
+          </a>
+        </div>
+
+        <!-- Card 4: EXPIRED -->
+        <div style="background:#f8fafc; border:1px solid #cbd5e1; border-radius:14px; padding:1.5rem; display:flex; flex-direction:column; justify-content:space-between;">
+          <div>
+            <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.75rem;">
+              <span style="display:inline-flex; align-items:center; justify-content:center; width:28px; height:28px; border-radius:50%; background:#64748b; color:#fff; font-size:0.9rem; font-weight:800;">⏱</span>
+              <strong style="color:#334155; font-size:1.1rem;">EXPIRED</strong>
+            </div>
+            <p style="font-size:0.85rem; color:#475569; line-height:1.5; margin-bottom:1rem;">
+              5-minute session window elapsed. Slot auto-released for next customer.
+            </p>
+          </div>
+          <a href="/order-expired?order_id=ORD-EXPIRED-TEST" class="btn" style="background:#475569; color:#ffffff; font-size:0.85rem; padding:0.6rem; text-decoration:none; text-align:center; border-radius:8px; font-weight:700;">
+            Preview Expired Page →
+          </a>
+        </div>
+
+        <!-- Card 5: CANCELLED -->
+        <div style="background:#f8fafc; border:1px solid #cbd5e1; border-radius:14px; padding:1.5rem; display:flex; flex-direction:column; justify-content:space-between;">
+          <div>
+            <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.75rem;">
+              <span style="display:inline-flex; align-items:center; justify-content:center; width:28px; height:28px; border-radius:50%; background:#94a3b8; color:#fff; font-size:0.9rem; font-weight:800;">⊘</span>
+              <strong style="color:#334155; font-size:1.1rem;">CANCELLED</strong>
+            </div>
+            <p style="font-size:0.85rem; color:#475569; line-height:1.5; margin-bottom:1rem;">
+              User dismissed modal or requested cancellation before payment.
+            </p>
+          </div>
+          <a href="/order-cancelled?order_id=ORD-CANCELLED-TEST" class="btn" style="background:#64748b; color:#ffffff; font-size:0.85rem; padding:0.6rem; text-decoration:none; text-align:center; border-radius:8px; font-weight:700;">
+            Preview Cancelled Page →
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <!-- OFFICIAL DEVELOPER INTEGRATION GUIDE                         -->
+  <!-- ============================================================ -->
+  <section class="specs-section" id="developer-guide" style="background:#0f172a; color:#f8fafc; padding:4rem 1.5rem;">
+    <div style="max-width:1100px; margin:0 auto;">
+      <div style="text-align:center; margin-bottom:3rem;">
+        <span style="background:rgba(56,189,248,0.15); border:1px solid rgba(56,189,248,0.35); color:#38bdf8; font-size:0.8rem; font-weight:800; padding:0.35rem 1rem; border-radius:20px; text-transform:uppercase; letter-spacing:0.04em;">Official Integration Guide</span>
+        <h2 style="font-family:'Outfit',sans-serif; font-size:2.4rem; font-weight:800; color:#ffffff; margin-top:0.75rem;">Integrate YOUPI PG in 5 Minutes</h2>
+        <p style="color:#94a3b8; font-size:1.05rem; max-width:700px; margin:0.5rem auto 0;">
+          Universal, framework-independent browser integration. Works with PHP, Node.js, Python, Laravel, Django, Next.js, WordPress, or plain HTML.
+        </p>
+      </div>
+
+      <!-- STEP 1 -->
+      <div style="background:#1e293b; border:1px solid #334155; border-radius:16px; padding:1.75rem; margin-bottom:1.75rem;">
+        <div style="display:flex; align-items:center; gap:0.75rem; margin-bottom:0.75rem;">
+          <span style="background:#2563eb; color:#ffffff; width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:800;">1</span>
+          <h3 style="font-family:'Outfit',sans-serif; font-size:1.35rem; font-weight:700; color:#ffffff;">Add the Official Script to Your Page</h3>
+        </div>
+        <p style="color:#cbd5e1; font-size:0.92rem; margin-bottom:1rem; line-height:1.5;">
+          Place this single script tag in your HTML. It automatically provides modal checkout, responsive iframe sizing, and button auto-detection.
+        </p>
+        <pre style="background:#0b1120; border:1px solid #1e293b; border-radius:10px; padding:1rem; color:#38bdf8; font-family:monospace; font-size:0.9rem; overflow-x:auto;"><code>&lt;!-- Official YOUPI PG Universal Integration Script --&gt;
+&lt;script
+    src="https://&lt;youpi-checkout-host&gt;/youpi.js"
+    data-youpi-key="YOUR_PUBLIC_KEY"&gt;
+&lt;/script&gt;</code></pre>
+      </div>
+
+      <!-- STEP 2 -->
+      <div style="background:#1e293b; border:1px solid #334155; border-radius:16px; padding:1.75rem; margin-bottom:1.75rem;">
+        <div style="display:flex; align-items:center; gap:0.75rem; margin-bottom:0.75rem;">
+          <span style="background:#2563eb; color:#ffffff; width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:800;">2</span>
+          <h3 style="font-family:'Outfit',sans-serif; font-size:1.35rem; font-weight:700; color:#ffffff;">Map Your Payment Button (Zero JavaScript)</h3>
+        </div>
+        <p style="color:#cbd5e1; font-size:0.92rem; margin-bottom:1rem; line-height:1.5;">
+          Add <code>data-youpi-pay</code>, <code>data-order-id</code>, and <code>data-amount</code> to any button. The script automatically opens the centered modal checkout on click!
+        </p>
+        <pre style="background:#0b1120; border:1px solid #1e293b; border-radius:10px; padding:1rem; color:#4ade80; font-family:monospace; font-size:0.9rem; overflow-x:auto;"><code>&lt;button
+    data-youpi-pay
+    data-order-id="ORDER-1001"
+    data-amount="499"&gt;
+    Buy Now
+&lt;/button&gt;</code></pre>
+        <p style="color:#94a3b8; font-size:0.85rem; margin-top:0.75rem;">
+          Optional button attributes: <code>data-currency="INR"</code>, <code>data-customer-name="Mohit"</code>, <code>data-customer-email="mohit@example.com"</code>, <code>data-customer-phone="9876543210"</code>, <code>data-metadata='{"sku":"TSHIRT-01"}'</code>.
+        </p>
+      </div>
+
+      <!-- STEP 3 -->
+      <div style="background:#1e293b; border:1px solid #334155; border-radius:16px; padding:1.75rem; margin-bottom:1.75rem;">
+        <div style="display:flex; align-items:center; gap:0.75rem; margin-bottom:0.75rem;">
+          <span style="background:#2563eb; color:#ffffff; width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:800;">3</span>
+          <h3 style="font-family:'Outfit',sans-serif; font-size:1.35rem; font-weight:700; color:#ffffff;">Listen to Browser Payment Events (For Frontend UX)</h3>
+        </div>
+        <p style="color:#cbd5e1; font-size:0.92rem; margin-bottom:1rem; line-height:1.5;">
+          The script emits standardized DOM CustomEvents on <code>window</code> to drive your user experience.
+        </p>
+        <pre style="background:#0b1120; border:1px solid #1e293b; border-radius:10px; padding:1rem; color:#facc15; font-family:monospace; font-size:0.88rem; overflow-x:auto;"><code>&lt;script&gt;
+  window.addEventListener('youpi:payment:success', (e) =&gt; {
+    const { order_id, amount_received, utr, payment_mode } = e.detail;
+    console.log(`Payment confirmed for Order #${order_id}. UTR: ${utr}`);
+    window.location.href = `/order-success?order_id=${order_id}&amount=${amount_received}&utr=${utr}`;
+  });
+
+  window.addEventListener('youpi:payment:failed', (e) =&gt; {
+    window.location.href = `/order-failed?order_id=${e.detail.order_id}&reason=${e.detail.reason}`;
+  });
+
+  window.addEventListener('youpi:payment:suspicious', (e) =&gt; {
+    window.location.href = `/order-suspicious?order_id=${e.detail.order_id}`;
+  });
+&lt;/script&gt;</code></pre>
+      </div>
+
+      <!-- STEP 4 -->
+      <div style="background:#1e293b; border:1px solid #334155; border-radius:16px; padding:1.75rem; margin-bottom:1.75rem;">
+        <div style="display:flex; align-items:center; gap:0.75rem; margin-bottom:0.75rem;">
+          <span style="background:#2563eb; color:#ffffff; width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:800;">4</span>
+          <h3 style="font-family:'Outfit',sans-serif; font-size:1.35rem; font-weight:700; color:#ffffff;">Or Use Programmatic Invocation: <code>Youpi.pay({...})</code></h3>
+        </div>
+        <p style="color:#cbd5e1; font-size:0.92rem; margin-bottom:1rem; line-height:1.5;">
+          For dynamic shopping carts (React, Vue, Next.js, Nuxt), call the programmatic API directly:
+        </p>
+        <pre style="background:#0b1120; border:1px solid #1e293b; border-radius:10px; padding:1rem; color:#a78bfa; font-family:monospace; font-size:0.88rem; overflow-x:auto;"><code>Youpi.pay({
+  order_id: "ORDER-1001",
+  amount: 499,
+  currency: "INR",
+  customer: {
+    name: "Mohit",
+    email: "mohit@example.com",
+    phone: "9876543210"
+  },
+  metadata: { product_id: "TSHIRT-01" },
+  handler: function(response) {
+    // response: { status: "SUCCESS", order_id, amount_received, utr, payment_mode }
+    alert(`Payment successful! UTR: ${response.utr}`);
+  },
+  onFailed: function(response) {
+    alert(`Payment failed: ${response.reason}`);
+  }
+});</code></pre>
+      </div>
+
+      <!-- STEP 5 -->
+      <div style="background:#1e293b; border:1px solid #334155; border-radius:16px; padding:1.75rem; margin-bottom:2.5rem;">
+        <div style="display:flex; align-items:center; gap:0.75rem; margin-bottom:0.75rem;">
+          <span style="background:#10b981; color:#ffffff; width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:800;">5</span>
+          <h3 style="font-family:'Outfit',sans-serif; font-size:1.35rem; font-weight:700; color:#ffffff;">Configure Authoritative Backend Webhook (Server-to-Server)</h3>
+        </div>
+        <div style="background:rgba(239,68,68,0.15); border:1px solid rgba(239,68,68,0.3); border-radius:8px; padding:0.85rem 1rem; color:#fca5a5; font-size:0.88rem; margin-bottom:1rem;">
+          <strong>CRITICAL SECURITY INVARIANT:</strong> Never mark an order paid based only on client-side browser events. Only fulfill orders after verifying the server-to-server HMAC-SHA256 signed webhook!
+        </div>
+        <pre style="background:#0b1120; border:1px solid #1e293b; border-radius:10px; padding:1rem; color:#f472b6; font-family:monospace; font-size:0.88rem; overflow-x:auto;"><code>// Node.js / Express Webhook Receiver Reference
+import crypto from 'node:crypto';
+
+app.post('/api/youpi-webhook', express.raw({ type: 'application/json' }), (req, res) => {
+  const signature = req.headers['x-gateway-signature']; // 'sha256=...'
+  const webhookSecret = process.env.YOUPI_WEBHOOK_SECRET;
+
+  // Verify HMAC-SHA256 signature
+  const expectedHmac = crypto.createHmac('sha256', webhookSecret).update(req.body).digest('hex');
+  if (signature !== `sha256=${expectedHmac}`) {
+    return res.status(401).send('Signature mismatch');
+  }
+
+  const event = JSON.parse(req.body.toString());
+  if (event.event === 'SUCCESS') {
+    // Authoritative proof: Mark order as PAID in your database!
+    db.orders.markPaid(event.orderId, { utr: event.utr, amount: event.amount });
+  }
+
+  res.status(200).json({ received: true });
+});</code></pre>
+      </div>
+
+      <!-- FAQ ACCORDION: 18 DEVELOPER QUESTIONS -->
+      <div style="background:#111c34; border:1px solid #1e293b; border-radius:18px; padding:2rem;">
+        <h3 style="font-family:'Outfit',sans-serif; font-size:1.6rem; font-weight:800; color:#ffffff; margin-bottom:1.5rem; text-align:center;">
+          Frequently Asked Developer Questions
+        </h3>
+        
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:1.25rem;">
+          <div style="background:#0c1527; padding:1.25rem; border-radius:10px; border:1px solid #1e293b;">
+            <strong style="color:#38bdf8; font-size:0.95rem;">Q: What do I put in my HTML?</strong>
+            <p style="color:#94a3b8; font-size:0.85rem; margin-top:0.4rem; line-height:1.5;">A: Exactly one script tag: <code>&lt;script src="..." data-youpi-key="KEY"&gt;&lt;/script&gt;</code> and your button with <code>data-youpi-pay</code>.</p>
+          </div>
+          <div style="background:#0c1527; padding:1.25rem; border-radius:10px; border:1px solid #1e293b;">
+            <strong style="color:#38bdf8; font-size:0.95rem;">Q: What information do I send to YOUPI?</strong>
+            <p style="color:#94a3b8; font-size:0.85rem; margin-top:0.4rem; line-height:1.5;">A: Only <code>order_id</code> and <code>amount</code> are required. Currency defaults to INR. Customer info and metadata are optional.</p>
+          </div>
+          <div style="background:#0c1527; padding:1.25rem; border-radius:10px; border:1px solid #1e293b;">
+            <strong style="color:#38bdf8; font-size:0.95rem;">Q: How does the payment modal open?</strong>
+            <p style="color:#94a3b8; font-size:0.85rem; margin-top:0.4rem; line-height:1.5;">A: Automatically! Clicking a <code>data-youpi-pay</code> button dims and blurs the background and renders the centered 2-column modal (or mobile drawer).</p>
+          </div>
+          <div style="background:#0c1527; padding:1.25rem; border-radius:10px; border:1px solid #1e293b;">
+            <strong style="color:#38bdf8; font-size:0.95rem;">Q: Which event actually proves the order is paid?</strong>
+            <p style="color:#94a3b8; font-size:0.85rem; margin-top:0.4rem; line-height:1.5;">A: ONLY the server-to-server webhook with valid HMAC signature. Browser events are for UI animations only.</p>
+          </div>
+          <div style="background:#0c1527; padding:1.25rem; border-radius:10px; border:1px solid #1e293b;">
+            <strong style="color:#38bdf8; font-size:0.95rem;">Q: What should never be trusted from the browser?</strong>
+            <p style="color:#94a3b8; font-size:0.85rem; margin-top:0.4rem; line-height:1.5;">A: Any frontend declaration of payment success. Never mark orders as fulfilled based solely on browser redirects or client callbacks.</p>
+          </div>
+          <div style="background:#0c1527; padding:1.25rem; border-radius:10px; border:1px solid #1e293b;">
+            <strong style="color:#38bdf8; font-size:0.95rem;">Q: Does the browser integration need private API secrets?</strong>
+            <p style="color:#94a3b8; font-size:0.85rem; margin-top:0.4rem; line-height:1.5;">A: NO! Only your public merchant key is placed in the browser. Private webhook secrets remain securely on your server.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <div class="brand-logo-badge">⚡</div>
+        <div>
+          <div style="font-family:'Outfit', sans-serif; font-size:1.2rem; font-weight:800; color:#ffffff;">YOUPI Store</div>
+          <div style="font-size:0.75rem; color:#94a3b8;">Official Demo Store &amp; E-Commerce Gateway Showcase</div>
+        </div>
+      </div>
+      <div style="font-size:0.8rem; color:#94a3b8;">
+        © 2026 YOUPI PG · Sovereign Small Scale Payment Gateway Suite
+      </div>
+    </div>
+  </footer>
+
+  <!-- LIGHTBOX MODAL FOR FULL-RES IMAGE INSPECTION -->
+  <div class="lightbox-modal" id="lightboxModal" onclick="closeLightbox(event)">
+    <button type="button" class="lightbox-close-btn" onclick="closeLightbox()">✕</button>
+    <img id="lightboxImg" class="lightbox-img" src="/assets/gateway_pc_checkout.png" alt="Enlarged Gateway Photo" />
+  </div>
+
+  <!-- PAYMENT SUCCESS CELEBRATION MODAL -->
+  <div class="celebration-modal" id="celebrationModal">
+    <div class="celebration-card">
+      <div class="celebration-icon">✓</div>
+      <h2 style="font-family:'Outfit',sans-serif; font-size:1.6rem; font-weight:800; color:#0f172a; margin-bottom:0.4rem;">Payment Verified!</h2>
+      <p style="font-size:0.88rem; color:var(--text-muted);">
+        Your transaction was verified via banking observers. Your YOUPI PG Suite license is provisioned.
+      </p>
+
+      <div class="receipt-box">
+        <div class="receipt-row"><span>Product:</span><strong>YOUPI PG Small Scale Suite</strong></div>
+        <div class="receipt-row"><span>Order ID:</span><span id="receiptOrderId" style="font-family:monospace; font-weight:700;">-</span></div>
+        <div class="receipt-row"><span>Payment ID:</span><span id="receiptPaymentId" style="font-family:monospace; font-size:0.75rem;">-</span></div>
+        <div class="receipt-row"><span>Amount Paid:</span><strong id="receiptAmountPaid" style="color:#059669; font-size:0.95rem;">₹1.00</strong></div>
+        <div class="receipt-row"><span>License Token:</span><code style="color:#2563eb; font-weight:700;">YPG-SML-2026-LIVE</code></div>
+      </div>
+
+      <button type="button" class="btn-buy-primary" onclick="closeCelebrationModal()" style="padding:0.75rem 1.25rem; font-size:0.95rem;">
+        Done &amp; Close Receipt
+      </button>
+    </div>
+  </div>
+
+  <!-- JAVASCRIPT: INTERACTIVE CONTROLLER & YOUPI CHECKOUT EMBED -->
+  <script>
+    // --- STATE MANAGEMENT ---
+    let currentAmount = 1.00;
+    const photos = [
+      {
+        url: '/assets/gateway_pc_checkout.png?v=2',
+        badge: '💻 Desktop 2-Column Checkout',
+        title: 'Desktop 2-Column Checkout',
+        desc: 'Authentic desktop 2-column checkout frame with real-time dynamic QR, clean card at counter, live order summary, and verified merchant branding.'
+      },
+      {
+        url: '/assets/gateway_mobile_checkout.png?v=2',
+        badge: '📱 Mobile Instant Sheet & UPI Intent',
+        title: 'Mobile Instant Sheet & UPI Intent',
+        desc: 'Native fluid mobile checkout bottom sheet with instant UPI app deep-linking (GPay, PhonePe, Paytm, CRED).'
+      },
+      {
+        url: '/assets/gateway_merchant_operations.png?v=2',
+        badge: '📊 Merchant Operations & Live Slots Hub',
+        title: 'Merchant Operations & Live Slots Hub',
+        desc: 'Crisp bright white operations dashboard with real-time slot allocation, floating cashier till dock, and observers status.'
+      },
+      {
+        url: '/assets/gateway_developer_dark_hub.png?v=2',
+        badge: '🌙 Developer Hub (Real Dark Mode)',
+        title: 'Developer Hub (Real Dark Mode)',
+        desc: 'Authentic obsidian real dark mode with multi-service supervisor, live host ports, and aggregate streaming terminal.'
+      },
+      {
+        url: '/assets/gateway_whitelabel_customizer.png?v=2',
+        badge: '🎨 White-Label Customizer & Mockup',
+        title: 'White-Label Customizer & Mockup',
+        desc: 'Live smartphone reflection with instant brand logo, custom color palette, trust seals, and conversion banners.'
+      }
+    ];
+    let currentPhotoIndex = 0;
+
+    // --- GALLERY CONTROLLER ---
+    function switchGalleryPhoto(index, url, title, desc) {
+      currentPhotoIndex = index;
+      const mainImg = document.getElementById('mainGalleryImg');
+      const badgeText = document.getElementById('galleryBadgeText');
+
+      if (mainImg) {
+        mainImg.style.opacity = '0.3';
+        mainImg.src = url;
+        setTimeout(() => { mainImg.style.opacity = '1'; }, 100);
+      }
+      if (badgeText) badgeText.textContent = title;
+
+      // Update thumbnails active state
+      document.querySelectorAll('.thumb-card').forEach((el, i) => {
+        el.classList.toggle('active', i === index);
+      });
+    }
+    function openLightbox() {
+      const modal = document.getElementById('lightboxModal');
+      const img = document.getElementById('lightboxImg');
+      if (modal && img) {
+        img.src = photos[currentPhotoIndex].url;
+        modal.classList.add('active');
+      }
+    }
+
+    function closeLightbox() {
+      const modal = document.getElementById('lightboxModal');
+      if (modal) {
+        modal.classList.remove('active');
+      }
+    }
+    }
+
+    // --- AMOUNT MODIFIER & BUY BOX ---
+    function selectAmount(amt, chipEl) {
+      currentAmount = Number(amt);
+      updateAmountUI();
+
+      document.querySelectorAll('.chip-btn').forEach(b => b.classList.remove('active'));
+      if (chipEl) chipEl.classList.add('active');
+      const customInput = document.getElementById('customAmountInput');
+      if (customInput) customInput.value = currentAmount.toFixed(2);
+    }
+
+    function handleCustomAmountInput(val) {
+      const num = parseFloat(val);
+      if (!isNaN(num) && num >= 1) {
+        currentAmount = num;
+        updateAmountUI();
+      }
+      // Unset active chips if not exact match
+      document.querySelectorAll('.chip-btn').forEach(b => {
+        const chipVal = parseFloat(b.innerText.replace(/[^0-9.]/g, ''));
+        b.classList.toggle('active', chipVal === currentAmount);
+      });
+    }
+
+    function updateAmountUI() {
+      const formatted = '₹' + currentAmount.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      const dispEl = document.getElementById('displayPrice');
+      const btnDisp = document.getElementById('btnAmountDisplay');
+      if (dispEl) dispEl.textContent = formatted;
+      if (btnDisp) btnDisp.textContent = formatted;
+    }
+
+    // --- PURCHASE INITIATION (Using Official Universal YouPI Integration) ---
+    async function startGatewayPurchase() {
+      const btn = document.getElementById('btnInitiateCheckout');
+      const oldHtml = btn.innerHTML;
+      btn.disabled = true;
+      btn.innerHTML = '<span>⏳ Preparing Gateway Session...</span>';
+
+      try {
+        const orderId = `COIN-ORD-${Date.now()}`;
+        btn.setAttribute('data-amount', currentAmount.toFixed(2));
+        btn.setAttribute('data-order-id', orderId);
+
+        // 1. Create order on store backend via YoupiPaymentClient
+        const res = await fetch('/api/checkout', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            price: currentAmount,
+            productName: 'YOUPI PG Enterprise Gateway Suite',
+            coins: Math.round(currentAmount)
+          })
+        });
+
+        const data = await res.json();
+        if (!res.ok || !data.checkoutUrl) {
+          alert(data.error || 'Failed to initiate checkout session.');
+          btn.disabled = false;
+          btn.innerHTML = oldHtml;
+          return;
+        }
+
+        // 2. Launch checkout modal using official Youpi.pay() SDK
+        window.Youpi.pay({
+          checkoutUrl: data.checkoutUrl,
+          order_id: data.orderId,
+          amount: currentAmount,
+          currency: 'INR',
+          name: 'YOUPI Store',
+          description: 'YOUPI PG Enterprise Suite Top-Up',
+          successUrl: `/order-success?order_id=${encodeURIComponent(data.orderId)}&amount=${encodeURIComponent(currentAmount)}`,
+          failedUrl: `/order-failed?order_id=${encodeURIComponent(data.orderId)}`,
+          suspiciousUrl: `/order-suspicious?order_id=${encodeURIComponent(data.orderId)}`,
+          expiredUrl: `/order-expired?order_id=${encodeURIComponent(data.orderId)}`,
+          cancelledUrl: `/order-cancelled?order_id=${encodeURIComponent(data.orderId)}`,
+          handler: function(paymentResponse) {
+            btn.disabled = false;
+            btn.innerHTML = oldHtml;
+            showCelebrationModal(data.orderId, paymentResponse.utr || paymentResponse.paymentId || data.paymentId, currentAmount);
+          },
+          onClose: function() {
+            btn.disabled = false;
+            btn.innerHTML = oldHtml;
+          }
+        });
+      } catch (err) {
+        alert('Error launching YOUPI Gateway: ' + err.message);
+        btn.disabled = false;
+        btn.innerHTML = oldHtml;
+      }
+    }
+
+    // --- OFFICIAL BROWSER PAYMENT EVENT LISTENERS ---
+    window.addEventListener('youpi:payment:success', function(e) {
+      console.log('[YOUPI PG Event] youpi:payment:success', e.detail);
+      const res = e.detail;
+      fetch('/api/verify-payment', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          orderId: res.order_id,
+          amount: res.amount_received || currentAmount,
+          coins: Math.round(res.amount_received || currentAmount),
+          paymentId: res.utr || res.order_id
+        })
+      }).then(r => r.json()).then(d => {
+        if (d.coins !== undefined) {
+          const el = document.getElementById('topWalletBalance');
+          if (el) el.textContent = d.coins;
+        }
+      }).catch(() => {});
+    });
+
+    window.addEventListener('youpi:payment:failed', function(e) {
+      console.warn('[YOUPI PG Event] youpi:payment:failed', e.detail);
+    });
+
+    window.addEventListener('youpi:payment:suspicious', function(e) {
+      console.warn('[YOUPI PG Event] youpi:payment:suspicious', e.detail);
+    });
+
+    window.addEventListener('youpi:payment:expired', function(e) {
+      console.warn('[YOUPI PG Event] youpi:payment:expired', e.detail);
+    });
+
+    window.addEventListener('youpi:payment:cancelled', function(e) {
+      console.log('[YOUPI PG Event] youpi:payment:cancelled', e.detail);
+    });
+
+    function showCelebrationModal(orderId, paymentId, amount) {
+      const modal = document.getElementById('celebrationModal');
+      const elOrder = document.getElementById('receiptOrderId');
+      const elPayment = document.getElementById('receiptPaymentId');
+      const elAmount = document.getElementById('receiptAmountPaid');
+
+      if (elOrder) elOrder.textContent = orderId || 'YOUPI-ORD-LIVE';
+      if (elPayment) elPayment.textContent = paymentId || 'pay_verified';
+      if (elAmount) elAmount.textContent = '₹' + Number(amount).toFixed(2);
+      if (modal) modal.classList.add('active');
+    }
+
+    function closeCelebrationModal() {
+      const modal = document.getElementById('celebrationModal');
+      if (modal) modal.classList.remove('active');
+    }
+
+    // Keydown ESC to close modals
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        closeLightbox();
+        closeCelebrationModal();
+      }
+    });
+
+    // Initialize UI on load
+    updateAmountUI();
+  </script>
+</body>
+</html>

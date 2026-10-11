@@ -1,0 +1,14 @@
+{
+  "name": "@unified/admin-panel",
+  "version": "1.0.0",
+  "description": "Unified Business Administration Panel for E-Commerce Operations",
+  "type": "module",
+  "main": "./src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "test": "node --test src/__tests__/**/*.test.js"
+  },
+  "dependencies": {
+    "@unified/common": "*"
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "name": "unified-ecommerce-platform",
+  "version": "1.0.0",
+  "description": "Unified E-Commerce Platform + Core Control Center with Native WhatsApp Auth and Payment Gateway",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "packages/*",
+    "services/*",
+    "apps/*",
+    "YOUPI PG V2/packages/*",
+    "YOUPI PG V2/apps/*"
+  ],
+  "scripts": {
+    "start": "node services/core-handler/src/index.js",
+    "dev": "node services/core-handler/src/index.js",
+    "seed": "node packages/db/src/seed.js",
+    "test": "node --test tests/platform.test.js tests/youpi-v2-integration.test.js",
+    "test:gateway": "node \"YOUPI PG V2/scripts/test-all.js\"",
+    "test:all": "node --test tests/platform.test.js tests/youpi-v2-integration.test.js && node \"YOUPI PG V2/scripts/test-all.js\",",
+    "clean": "node scripts/clean.js",
+    "status": "node services/core-handler/src/cli.js status"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.0"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.5"
+  }
+}

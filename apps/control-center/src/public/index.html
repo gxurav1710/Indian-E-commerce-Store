@@ -1,0 +1,2259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Central Control Center — Infrastructure & Service Operator Console</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #090d16;
+      --card-bg: #111827;
+      --card-border: #1f2937;
+      --text: #f3f4f6;
+      --text-muted: #9ca3af;
+      --primary: #3b82f6;
+      --accent: #10b981;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+      --font: 'Plus Jakarta Sans', -apple-system, sans-serif;
+      --mono: 'JetBrains Mono', monospace;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: var(--font);
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      overflow: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Top Console Bar */
+    .top-bar {
+      background: #0f172a;
+      border-bottom: 1px solid var(--card-border);
+      padding: 0.85rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+    }
+    .console-brand {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-size: 1.15rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+    .console-badge {
+      background: rgba(239, 68, 68, 0.2);
+      border: 1px solid rgba(239, 68, 68, 0.4);
+      color: #f87171;
+      font-size: 0.65rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      padding: 0.2rem 0.55rem;
+      border-radius: 4px;
+      letter-spacing: 0.05em;
+    }
+
+    .telemetry-strip {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      font-family: var(--mono);
+      font-size: 0.8rem;
+    }
+    .telem-item {
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      color: var(--text-muted);
+    }
+    .telem-item strong { color: #fff; }
+
+    /* Layout Split */
+    .workspace {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      overflow: hidden;
+    }
+
+    /* Service Grid Pane */
+    .services-pane {
+      overflow-y: auto;
+      padding: 1.5rem;
+      border-right: 1px solid var(--card-border);
+    }
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.25rem;
+    }
+    .section-title {
+      font-size: 1.1rem;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .service-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 1rem;
+    }
+    .service-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 10px;
+      padding: 1.15rem;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+    .service-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 0.5rem;
+    }
+    .service-name {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: #fff;
+    }
+    .service-id {
+      font-family: var(--mono);
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    /* Status Badges */
+    .status-badge {
+      font-size: 0.65rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: 0.25rem 0.6rem;
+      border-radius: 50px;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+    .status-healthy { background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); }
+    .status-starting { background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3); }
+    .status-stopped { background: rgba(100, 116, 139, 0.2); color: #94a3b8; border: 1px solid rgba(100, 116, 139, 0.3); }
+    .status-unhealthy { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.4); }
+    .status-restarting { background: rgba(59, 130, 246, 0.2); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.4); }
+    .status-failed { background: rgba(153, 27, 27, 0.3); color: #fca5a5; border: 1px solid #ef4444; }
+
+    .service-meta {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-bottom: 1rem;
+      flex: 1;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.35rem;
+      font-family: var(--mono);
+    }
+
+    .service-actions {
+      display: flex;
+      gap: 0.5rem;
+      border-top: 1px solid var(--card-border);
+      padding-top: 0.85rem;
+    }
+    .btn-ctrl {
+      flex: 1;
+      padding: 0.4rem 0.65rem;
+      font-size: 0.75rem;
+      font-weight: 700;
+      border-radius: 6px;
+      border: 1px solid var(--card-border);
+      background: #1f2937;
+      color: #fff;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.35rem;
+      transition: all 0.15s;
+    }
+    .btn-ctrl:hover { background: #374151; }
+    .btn-restart:hover { background: var(--primary); border-color: var(--primary); }
+    .btn-stop:hover { background: var(--danger); border-color: var(--danger); }
+    .btn-start:hover { background: var(--accent); border-color: var(--accent); }
+
+    /* 1-Click Environment Mode Switcher Styles */
+    .btn-mode-toggle {
+      background: transparent;
+      color: #94a3b8;
+    }
+    .btn-mode-toggle:hover {
+      color: #fff;
+    }
+    .btn-mode-toggle.active-dev {
+      background: #f59e0b !important;
+      color: #0f172a !important;
+      font-weight: 800 !important;
+      box-shadow: 0 0 14px rgba(245, 158, 11, 0.45);
+    }
+    .btn-mode-toggle.active-prod {
+      background: #10b981 !important;
+      color: #fff !important;
+      font-weight: 800 !important;
+      box-shadow: 0 0 14px rgba(16, 185, 129, 0.45);
+    }
+
+    /* Log Stream Pane */
+    .logs-pane {
+      background: #0b0f19;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .logs-header {
+      padding: 1rem 1.25rem;
+      border-bottom: 1px solid var(--card-border);
+      background: #0f172a;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+    .logs-filters {
+      display: flex;
+      gap: 0.5rem;
+      overflow-x: auto;
+      padding-bottom: 0.25rem;
+    }
+    .log-filter-btn {
+      background: #1f2937;
+      border: 1px solid #374151;
+      color: var(--text-muted);
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 0.25rem 0.65rem;
+      border-radius: 50px;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .log-filter-btn.active {
+      background: var(--primary);
+      color: #fff;
+      border-color: var(--primary);
+    }
+    .logs-console {
+      flex: 1;
+      overflow-y: auto;
+      padding: 1rem 1.25rem;
+      font-family: var(--mono);
+      font-size: 0.75rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+    }
+    .log-row {
+      display: flex;
+      gap: 0.65rem;
+      line-height: 1.4;
+      word-break: break-all;
+    }
+    .log-time { color: #64748b; flex-shrink: 0; }
+    .log-svc { color: #60a5fa; flex-shrink: 0; font-weight: 600; }
+    .log-lvl-info { color: #34d399; }
+    .log-lvl-warn { color: #fbbf24; font-weight: 700; }
+    .log-lvl-error { color: #f87171; font-weight: 700; }
+    .log-msg { color: #e2e8f0; }
+
+    /* Confirmation Modal (Section 29) */
+    .confirm-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.75);
+      backdrop-filter: blur(4px);
+      z-index: 200;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+    }
+    .confirm-overlay.open { display: flex; }
+    .confirm-box {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 1.75rem;
+      max-width: 460px;
+      width: 100%;
+      box-shadow: 0 25px 50px rgba(0,0,0,0.5);
+    }
+
+    /* Operator Login Screen (Section 26) */
+    #operatorLoginScreen {
+      position: fixed;
+      inset: 0;
+      background: #090d16;
+      z-index: 999999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+    }
+    .op-box {
+      background: #0f172a;
+      border: 1px solid #1e293b;
+      border-radius: 12px;
+      padding: 2.5rem;
+      width: 100%;
+      max-width: 420px;
+      box-shadow: 0 25px 50px rgba(0,0,0,0.4);
+    }
+    .op-input {
+      width: 100%;
+      padding: 0.65rem 0.85rem;
+      background: #1e293b;
+      border: 1px solid #334155;
+      color: #fff;
+      font-family: inherit;
+      border-radius: 6px;
+      margin-bottom: 1rem;
+      outline: none;
+    }
+    .op-input:focus { border-color: var(--primary); }
+    .op-btn {
+      width: 100%;
+      padding: 0.75rem;
+      background: var(--primary);
+      color: #fff;
+      font-weight: 700;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Operator Privileged Authentication (Password Only - No Username / No Email) -->
+  <div id="operatorLoginScreen">
+    <div class="op-box">
+      <div style="display:flex; align-items:center; gap:0.65rem; margin-bottom:1.5rem;">
+        <span style="font-size:2rem;">⚡</span>
+        <div>
+          <h2 style="font-size:1.15rem; font-weight:800; color:#fff;">CENTRAL CONTROL CENTER</h2>
+          <div style="font-size:0.75rem; color:var(--text-muted);">Protected Infrastructure Operator Console</div>
+        </div>
+      </div>
+      <form onsubmit="handleOperatorUniversalLogin(event)">
+        <label style="display:block; font-size:0.82rem; font-weight:700; margin-bottom:0.45rem; color:#cbd5e1;">Master Administrator Password *</label>
+        <input type="password" id="opUniversalPass" class="op-input" placeholder="Enter universal master password..." required autofocus style="letter-spacing:0.1em; font-size:1rem; padding:0.75rem 1rem;">
+
+        <div style="display:flex; align-items:center; gap:0.5rem; margin-top:-0.25rem; margin-bottom:1rem; font-size:0.8rem; color:#cbd5e1; cursor:pointer;">
+          <input type="checkbox" id="opAutoLoginCheck" checked style="width:16px; height:16px; cursor:pointer; accent-color:#3b82f6;">
+          <label for="opAutoLoginCheck" style="cursor:pointer; user-select:none;">Keep me logged in permanently (Auto-Login)</label>
+        </div>
+
+        <button type="submit" class="op-btn" id="opLoginBtn" style="padding:0.75rem; font-size:0.92rem; font-weight:700;">
+          Unlock Console &rsaquo;
+        </button>
+      </form>
+      <div id="opErr" style="color:var(--danger); font-size:0.8rem; margin-top:1rem; display:none; background:rgba(239,68,68,0.15); border:1px solid rgba(239,68,68,0.3); padding:0.5rem; border-radius:6px;"></div>
+      <div style="font-size:0.72rem; color:#64748b; margin-top:1.5rem; text-align:center; line-height:1.5;">
+        🔒 Secure Operator Access. Enter universal administrator credentials to proceed.
+      </div>
+    </div>
+  </div>
+
+<div id="controlCenterWrapper" style="display:none; width:100vw; height:100vh; overflow:hidden; flex-direction:column;">
+  <!-- Top Console Bar -->
+  <div class="top-bar">
+    <div class="console-brand">
+      <span>⚡</span>
+      CENTRAL CONTROL CENTER
+      <span class="console-badge">Infrastructure Vitals</span>
+    </div>
+
+    <!-- View Switcher -->
+    <div style="display:flex; background:#1e293b; padding:0.25rem; border-radius:8px; gap:0.25rem; border:1px solid var(--card-border);">
+      <button type="button" id="btnViewWorkspace" class="btn-ctrl" style="background:var(--primary); color:#fff; border:none; padding:0.35rem 0.85rem; border-radius:6px; font-weight:700; font-size:0.8rem;" onclick="switchConsoleView('workspace')">
+        ⚙️ Services &amp; Logs
+      </button>
+      <button type="button" id="btnViewCredentials" class="btn-ctrl" style="background:transparent; color:var(--text-muted); border:none; padding:0.35rem 0.85rem; border-radius:6px; font-weight:700; font-size:0.8rem;" onclick="switchConsoleView('credentials')">
+        🔑 Credential Manager &amp; Cloudflare Guide
+      </button>
+      <button type="button" id="btnViewSnapshots" class="btn-ctrl" style="background:transparent; color:var(--text-muted); border:none; padding:0.35rem 0.85rem; border-radius:6px; font-weight:700; font-size:0.8rem;" onclick="switchConsoleView('snapshots')">
+        💾 Full Snapshots &amp; Backups
+      </button>
+    </div>
+
+    <!-- 1-Click Unified Environment Switcher -->
+    <div class="env-mode-switcher-wrap" style="display:flex; align-items:center; background:#0b1329; padding:0.25rem 0.4rem; border-radius:10px; border:1px solid rgba(59, 130, 246, 0.4); gap:0.4rem; box-shadow:0 0 15px rgba(0,0,0,0.5);">
+      <span style="font-size:0.7rem; font-weight:800; color:#94a3b8; text-transform:uppercase; letter-spacing:0.05em; padding-left:0.3rem;">MODE:</span>
+      <div style="display:flex; background:#0f172a; padding:2px; border-radius:8px; border:1px solid #1e293b; gap:2px;">
+        <button type="button" id="btnToggleLocalhost" class="btn-mode-toggle active-dev" onclick="switchEnvironmentMode('DEVELOPMENT')" title="1-Click Switch: Set all 22+ variables, URLs &amp; APIs to Localhost ports (5000, 5001, 4000...)" style="display:flex; align-items:center; gap:0.35rem; padding:0.35rem 0.75rem; border-radius:6px; border:none; font-size:0.75rem; font-weight:800; cursor:pointer; transition:all 0.2s;">
+          <span style="font-size:0.85rem;">🏠</span> LOCALHOST
+        </button>
+        <button type="button" id="btnToggleProduction" class="btn-mode-toggle" onclick="switchEnvironmentMode('PRODUCTION')" title="1-Click Switch: Set all 22+ variables, URLs &amp; APIs to Live Production domain (vienta.shop)" style="display:flex; align-items:center; gap:0.35rem; padding:0.35rem 0.75rem; border-radius:6px; border:none; font-size:0.75rem; font-weight:800; cursor:pointer; transition:all 0.2s;">
+          <span style="font-size:0.85rem;">🚀</span> PRODUCTION
+        </button>
+      </div>
+      <span id="topEnvIndicator" style="font-size:0.68rem; font-weight:800; padding:0.25rem 0.6rem; border-radius:6px; letter-spacing:0.04em; background:#f59e0b; color:#0f172a;">DEV</span>
+    </div>
+
+    <div class="telemetry-strip" id="telemStrip">
+      <div class="telem-item">Status: <strong id="telemStatus" style="color:var(--accent);">NOMINAL</strong></div>
+      <div class="telem-item">CPU: <strong id="telemCpu">--%</strong></div>
+      <div class="telem-item">RAM: <strong id="telemRam">--%</strong></div>
+      <div class="telem-item">Host Uptime: <strong id="telemUptime">--</strong></div>
+      <a href="http://localhost:4002" target="_blank" class="btn-ctrl" style="background:#25D366; color:#090d16; font-weight:800; padding:0.25rem 0.65rem; text-decoration:none;" title="Open Authentic WhatsApp Dashboard">
+        📱 WhatsApp (4002)
+      </a>
+      <a href="http://localhost:6001" target="_blank" class="btn-ctrl" style="background:#3b82f6; color:#fff; font-weight:800; padding:0.25rem 0.65rem; text-decoration:none;" title="Open Authentic YouPi PG Merchant Admin">
+        💳 PG Admin (6001)
+      </a>
+      <a href="http://localhost:5000" target="_blank" class="btn-ctrl" style="text-decoration:none;" title="Open Customer Storefront">
+        🛍️ Store (5000)
+      </a>
+      <button class="btn-ctrl" style="padding:0.25rem 0.65rem; background:rgba(239,68,68,0.2); border:1px solid rgba(239,68,68,0.4); color:#fca5a5; font-weight:700; cursor:pointer;" onclick="logoutOperator()">🔒 Lock Console</button>
+    </div>
+  </div>
+
+  <!-- View 1: Main Split View Workspace (Services & Central Logs) -->
+  <div class="workspace" id="workspaceView">
+    <!-- Left: Service Grid & Controls (Section 29 & 31) -->
+    <div class="services-pane">
+      <div class="section-header">
+        <div class="section-title">
+          <span>⚙️</span> Registered Platform Services (<span id="serviceCount">0</span>)
+        </div>
+        <button class="btn-ctrl" style="padding:0.35rem 0.75rem;" onclick="fetchServices()">↻ Refresh</button>
+      </div>
+
+      <div class="service-grid" id="serviceGrid">
+        <!-- Injected dynamically -->
+      </div>
+    </div>
+
+    <!-- Right: Centralized Log Stream (Section 32) -->
+    <div class="logs-pane">
+      <div class="logs-header">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <div style="font-weight:700; font-size:0.9rem; display:flex; align-items:center; gap:0.5rem;">
+            <span>📜</span> Central Log Stream (<span id="logCount">0</span>)
+          </div>
+          <button class="btn-ctrl" style="padding:0.2rem 0.5rem;" onclick="clearLogs()">Clear</button>
+        </div>
+
+        <div class="logs-filters">
+          <button class="log-filter-btn active" onclick="filterLogs('all', this)">All Logs</button>
+          <button class="log-filter-btn" onclick="filterLogs('errors', this)">Errors</button>
+          <button class="log-filter-btn" onclick="filterLogs('warnings', this)">Warnings</button>
+          <button class="log-filter-btn" onclick="filterLogs('auth', this)">Auth</button>
+          <button class="log-filter-btn" onclick="filterLogs('payments', this)">Payments</button>
+          <button class="log-filter-btn" onclick="filterLogs('orders', this)">Orders</button>
+          <button class="log-filter-btn" onclick="filterLogs('whatsapp', this)">WhatsApp</button>
+          <button class="log-filter-btn" onclick="filterLogs('system', this)">System</button>
+        </div>
+      </div>
+
+      <div class="logs-console" id="logsConsole">
+        <!-- Streamed log rows -->
+      </div>
+    </div>
+  </div>
+
+  <!-- View 2: Credentials & Live Deployment Manager View -->
+  <div id="credentialsView" style="display:none; flex:1; overflow-y:auto; padding:2rem; background:#0b1120;">
+    <div style="max-width:1380px; margin:0 auto; display:grid; grid-template-columns:1.25fr 0.75fr; gap:2rem;">
+      <!-- Left Column: Credential Manager -->
+      <div>
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:1.25rem;">
+          <div>
+            <h2 style="font-size:1.4rem; font-weight:800; color:#fff; display:flex; align-items:center; gap:0.5rem;">
+              <span>🔑</span> Master Credentials, Ports, URLs &amp; Deployment Manager
+            </h2>
+            <p style="font-size:0.85rem; color:var(--text-muted); margin-top:0.25rem;">
+              Directly view, modify, and push all active platform service ports, public base URLs, return URLs, webhooks, and secrets directly into <code>.env</code>
+            </p>
+          </div>
+          <button type="button" class="btn-ctrl" style="padding:0.45rem 1rem; font-size:0.8rem;" onclick="loadCredentials()">
+            ↻ Reload from Disk
+          </button>
+        </div>
+
+        <!-- 🌐 Primary Domain & Environment Synchronizer (Localhost ⇋ Live Production) -->
+        <div style="background:linear-gradient(135deg, rgba(37,99,235,0.18) 0%, rgba(16,185,129,0.18) 100%); border:1px solid #3b82f6; border-radius:12px; padding:1.35rem; margin-bottom:1.5rem; box-shadow:0 10px 30px rgba(37,99,235,0.15);">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.6rem; flex-wrap:wrap; gap:0.5rem;">
+            <h4 style="font-size:1rem; font-weight:800; color:#fff; display:flex; align-items:center; gap:0.5rem; margin:0;">
+              <span>🌐</span> Primary Domain & Environment Synchronizer
+            </h4>
+            <div style="display:flex; align-items:center; gap:0.5rem;">
+              <span id="envModeBadge" style="font-size:0.7rem; background:#10b981; color:#fff; padding:0.25rem 0.6rem; border-radius:5px; font-weight:800; letter-spacing:0.05em;">LIVE PRODUCTION READY</span>
+              <button type="button" class="btn-ctrl" style="background:#0f172a; color:#38bdf8; border:1px solid #38bdf8; font-size:0.72rem; padding:0.3rem 0.65rem;" onclick="detectHostDomain()" title="Auto-detect domain from browser address">
+                🔍 Auto-Detect Host
+              </button>
+            </div>
+          </div>
+          <p style="font-size:0.8rem; color:#cbd5e1; margin-bottom:1rem; line-height:1.5;">
+            Configure your custom store domain and extension below. The customer store launches directly at root <strong>domain.extension</strong> (e.g. <code>vienta.shop</code>) without the <code>store.</code> prefix, while internal APIs and consoles cleanly route to <code>api.</code>, <code>admin.</code>, <code>pay.</code>, etc.
+          </p>
+
+          <!-- Domain & Extension Config Grid -->
+          <div style="display:grid; grid-template-columns:100px 1.4fr 140px auto; gap:0.65rem; align-items:flex-end; margin-bottom:0.75rem;">
+            <div>
+              <label style="display:block; font-size:0.7rem; font-weight:700; color:#94a3b8; margin-bottom:0.25rem;">Protocol</label>
+              <select id="quickDeployProto" class="op-input" style="margin-bottom:0; font-family:var(--mono); padding:0.6rem 0.5rem;" onchange="onDomainConfigChange()">
+                <option value="https://">https://</option>
+                <option value="http://">http://</option>
+              </select>
+            </div>
+            <div>
+              <label style="display:block; font-size:0.7rem; font-weight:700; color:#94a3b8; margin-bottom:0.25rem;">Domain Name (e.g. vienta)</label>
+              <input type="text" id="domainNameInput" class="op-input" style="margin-bottom:0; font-family:var(--mono); font-weight:700;" placeholder="vienta" value="vienta" oninput="onDomainConfigChange()">
+            </div>
+            <div>
+              <label style="display:block; font-size:0.7rem; font-weight:700; color:#94a3b8; margin-bottom:0.25rem;">Extension (TLD)</label>
+              <input type="text" id="domainExtInput" class="op-input" style="margin-bottom:0; font-family:var(--mono); font-weight:700;" placeholder=".shop" value=".shop" oninput="onDomainConfigChange()">
+            </div>
+            <div style="display:flex; gap:0.5rem;">
+              <button type="button" class="btn-ctrl" style="background:#2563eb; color:#fff; font-weight:800; padding:0.65rem 1.15rem; white-space:nowrap;" onclick="applyProductionDomain()">
+                ⚡ Apply Live Domain
+              </button>
+              <button type="button" class="btn-ctrl" style="background:#334155; color:#cbd5e1; font-weight:700; padding:0.65rem 0.9rem; white-space:nowrap;" onclick="revertToLocalhost()">
+                ↺ Localhost Mode
+              </button>
+            </div>
+          </div>
+
+          <!-- Quick Extension Pills -->
+          <div style="display:flex; align-items:center; gap:0.4rem; flex-wrap:wrap; margin-bottom:1rem;">
+            <span style="font-size:0.7rem; color:#94a3b8; font-weight:600; margin-right:0.25rem;">Popular Extensions:</span>
+            <button type="button" class="tld-pill" onclick="setExtension('.shop')" style="background:#1e293b; border:1px solid #3b82f6; color:#38bdf8; border-radius:9999px; padding:0.2rem 0.65rem; font-size:0.72rem; font-family:var(--mono); font-weight:700; cursor:pointer;">.shop</button>
+            <button type="button" class="tld-pill" onclick="setExtension('.com')" style="background:#1e293b; border:1px solid #334155; color:#cbd5e1; border-radius:9999px; padding:0.2rem 0.65rem; font-size:0.72rem; font-family:var(--mono); font-weight:700; cursor:pointer;">.com</button>
+            <button type="button" class="tld-pill" onclick="setExtension('.in')" style="background:#1e293b; border:1px solid #334155; color:#cbd5e1; border-radius:9999px; padding:0.2rem 0.65rem; font-size:0.72rem; font-family:var(--mono); font-weight:700; cursor:pointer;">.in</button>
+            <button type="button" class="tld-pill" onclick="setExtension('.store')" style="background:#1e293b; border:1px solid #334155; color:#cbd5e1; border-radius:9999px; padding:0.2rem 0.65rem; font-size:0.72rem; font-family:var(--mono); font-weight:700; cursor:pointer;">.store</button>
+            <button type="button" class="tld-pill" onclick="setExtension('.co')" style="background:#1e293b; border:1px solid #334155; color:#cbd5e1; border-radius:9999px; padding:0.2rem 0.65rem; font-size:0.72rem; font-family:var(--mono); font-weight:700; cursor:pointer;">.co</button>
+            <button type="button" class="tld-pill" onclick="setExtension('.online')" style="background:#1e293b; border:1px solid #334155; color:#cbd5e1; border-radius:9999px; padding:0.2rem 0.65rem; font-size:0.72rem; font-family:var(--mono); font-weight:700; cursor:pointer;">.online</button>
+            <button type="button" class="tld-pill" onclick="setExtension('.net')" style="background:#1e293b; border:1px solid #334155; color:#cbd5e1; border-radius:9999px; padding:0.2rem 0.65rem; font-size:0.72rem; font-family:var(--mono); font-weight:700; cursor:pointer;">.net</button>
+          </div>
+
+          <!-- Live Topology Visual Preview -->
+          <div style="background:rgba(15, 23, 42, 0.8); border:1px solid rgba(59, 130, 246, 0.4); border-radius:8px; padding:0.85rem; font-size:0.78rem; font-family:var(--mono);">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.45rem; border-bottom:1px solid #1e293b; padding-bottom:0.45rem;">
+              <span style="color:#94a3b8; font-size:0.72rem; text-transform:uppercase; font-weight:700; letter-spacing:0.05em;">Live Deployment Architecture Blueprint</span>
+              <span id="activeDomainDisplay" style="color:#38bdf8; font-weight:800;">vienta.shop</span>
+            </div>
+            <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:0.5rem 1rem;">
+              <div style="display:flex; align-items:center; gap:0.4rem;">
+                <span style="color:#34d399;">🛒 Storefront (Apex):</span>
+                <strong id="previewStorefront" style="color:#fff;">https://vienta.shop</strong>
+                <span style="font-size:0.65rem; background:#059669; color:#fff; padding:0.1rem 0.35rem; border-radius:3px;">PORT 5000</span>
+              </div>
+              <div style="display:flex; align-items:center; gap:0.4rem;">
+                <span style="color:#38bdf8;">⚡ Commerce API:</span>
+                <span id="previewCommerceApi" style="color:#cbd5e1;">https://api.vienta.shop</span>
+                <span style="font-size:0.65rem; background:#334155; color:#cbd5e1; padding:0.1rem 0.35rem; border-radius:3px;">PORT 5001</span>
+              </div>
+              <div style="display:flex; align-items:center; gap:0.4rem;">
+                <span style="color:#a78bfa;">🛡️ Admin Console:</span>
+                <span id="previewAdminPanel" style="color:#cbd5e1;">https://admin.vienta.shop</span>
+                <span style="font-size:0.65rem; background:#334155; color:#cbd5e1; padding:0.1rem 0.35rem; border-radius:3px;">PORT 5050</span>
+              </div>
+              <div style="display:flex; align-items:center; gap:0.4rem;">
+                <span style="color:#f59e0b;">💳 Payment Checkout:</span>
+                <span id="previewCheckout" style="color:#cbd5e1;">https://pay.vienta.shop</span>
+                <span style="font-size:0.65rem; background:#334155; color:#cbd5e1; padding:0.1rem 0.35rem; border-radius:3px;">PORT 7000</span>
+              </div>
+              <div style="display:flex; align-items:center; gap:0.4rem;">
+                <span style="color:#ec4899;">🔌 Payment Gateway API:</span>
+                <span id="previewPayApi" style="color:#cbd5e1;">https://pay-api.vienta.shop</span>
+                <span style="font-size:0.65rem; background:#334155; color:#cbd5e1; padding:0.1rem 0.35rem; border-radius:3px;">PORT 6100</span>
+              </div>
+              <div style="display:flex; align-items:center; gap:0.4rem;">
+                <span style="color:#14b8a6;">💼 Merchant Admin:</span>
+                <span id="previewMerchant" style="color:#cbd5e1;">https://merchant.vienta.shop</span>
+                <span style="font-size:0.65rem; background:#334155; color:#cbd5e1; padding:0.1rem 0.35rem; border-radius:3px;">PORT 6001</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <form id="credentialsForm" onsubmit="saveCredentials(event)">
+          <!-- Card 0: Prioritized Cloudflare Tunnel (cloudflared) Automated Launch Command -->
+          <div style="background:linear-gradient(135deg, rgba(245, 158, 11, 0.12) 0%, rgba(234, 88, 12, 0.16) 100%); border:1px solid #f59e0b; border-radius:12px; padding:1.35rem; margin-bottom:1.5rem; box-shadow:0 8px 24px rgba(245, 158, 11, 0.15);">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.6rem; flex-wrap:wrap; gap:0.5rem;">
+              <h4 style="font-size:1.05rem; font-weight:800; color:#fff; display:flex; align-items:center; gap:0.5rem; margin:0;">
+                <span>☁️</span> Cloudflare Tunnel (cloudflared) Automated Command
+              </h4>
+              <div style="display:flex; align-items:center; gap:0.5rem;">
+                <span id="tunnelStatusBadge" style="font-size:0.7rem; background:#334155; color:#cbd5e1; padding:0.25rem 0.6rem; border-radius:5px; font-weight:800; letter-spacing:0.05em;">NOT CONFIGURED</span>
+              </div>
+            </div>
+            <p style="font-size:0.8rem; color:#cbd5e1; margin-bottom:0.85rem; line-height:1.5;">
+              Paste any arbitrary <code>cloudflared</code> tunnel command provided by your Cloudflare Zero Trust console. Persisted directly into the Credential Manager database &amp; <code>.env</code>. When you run <code>npm start</code> in project root, this tunnel is automatically executed first before launching local dashboards.
+            </p>
+            <div style="margin-bottom:0.85rem;">
+              <label style="display:block; font-size:0.72rem; font-weight:700; color:#fde68a; margin-bottom:0.35rem;">
+                CLOUDFLARE_TUNNEL_COMMAND (Accepts full command with token)
+              </label>
+              <textarea id="env_CLOUDFLARE_TUNNEL_COMMAND" rows="3" class="op-input" style="font-family:var(--mono); font-size:0.82rem; margin-bottom:0; width:100%; box-sizing:border-box; background:rgba(15, 23, 42, 0.9); border:1px solid rgba(245, 158, 11, 0.5); color:#fef08a; padding:0.65rem; border-radius:6px; resize:vertical;" placeholder="cloudflared tunnel run --token eyJhIjoiYTQxMzZhNmMxYjg5NDEyNGUxOGM0ZTE4MjRjNWNmNjYiLCJ0IjoiZGUwMTU0YjYtMTJmMC00MTU1LThlYWItMzZjNWEzNTU0MGEzIiwicyI6Ik1UWTVZV0U1T0dJdE1tWTBOQzAwT0ROaUxXRXlOak10T0dRMFl6WmpOREkxWkdaaCJ9" oninput="updateTunnelStatusBadge()"></textarea>
+            </div>
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem;">
+              <div style="display:flex; gap:0.5rem; align-items:center;">
+                <button type="button" id="btnSaveTunnelCmd" class="btn-ctrl" style="background:#f59e0b; color:#0f172a; font-weight:800; padding:0.5rem 1.1rem; font-size:0.8rem;" onclick="saveTunnelCommandDirectly()">
+                  💾 Save Tunnel Command
+                </button>
+                <button type="button" class="btn-ctrl" style="background:#1e293b; color:#cbd5e1; font-size:0.75rem; padding:0.5rem 0.8rem;" onclick="fillExampleTunnelToken()">
+                  📋 Paste Example Token
+                </button>
+                <button type="button" class="btn-ctrl" style="background:#1e293b; color:#ef4444; font-size:0.75rem; padding:0.5rem 0.8rem;" onclick="clearTunnelCommand()">
+                  ✕ Clear
+                </button>
+              </div>
+              <span id="tunnelSaveMsg" style="display:none; font-size:0.78rem; color:#34d399; font-weight:700;">✓ Tunnel command saved to DB!</span>
+            </div>
+          </div>
+
+          <!-- Card 0A: Active Service Ports (All 15 Microservices) -->
+          <div style="background:var(--card-bg); border:1px solid var(--card-border); border-radius:10px; padding:1.25rem; margin-bottom:1.25rem;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.35rem;">
+              <h4 style="font-size:0.95rem; font-weight:800; color:#fff; display:flex; align-items:center; gap:0.4rem;">
+                <span>🔌</span> Active Service Network Ports (All 15 Platform Services)
+              </h4>
+              <span style="font-size:0.7rem; color:#34d399; font-weight:700; font-family:var(--mono);">15 ACTIVE PORTS</span>
+            </div>
+            <p style="font-size:0.75rem; color:var(--text-muted); margin-bottom:1rem;">
+              Assigned internal TCP ports across the unified mono-repo. All port bindings are dynamically loaded at service boot.
+            </p>
+            <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:0.75rem;">
+              <div>
+                <label style="display:block; font-size:0.72rem; font-weight:700; color:#cbd5e1; margin-bottom:0.2rem;">Storefront Port</label>
+                <input type="number" id="env_STOREFRONT_PORT" class="op-input" style="font-family:var(--mono); margin-bottom:0;" placeholder="5000">
+              </div>
+              <div>
+                <label style="display:block; font-size:0.72rem; font-weight:700; color:#cbd5e1; margin-bottom:0.2rem;">Commerce REST API Port</label>
+                <input type="number" id="env_COMMERCE_API_PORT" class="op-input" style="font-family:var(--mono); margin-bottom:0;" placeholder="5001">
+              </div>
+              <div>
+                <label style="display:block; font-size:0.72rem; font-weight:700; color:#cbd5e1; margin-bottom:0.2rem;">Notifications Service Port</label>
+                <input type="number" id="env_NOTIFICATION_SERVICE_PORT" class="op-input" style="font-family:var(--mono); margin-bottom:0;" placeholder="5002">
+              </div>
+              <div>
+                <label style="display:block; font-size:0.72rem; font-weight:700; color:#cbd5e1; margin-bottom:0.2rem;">Shipping Engine Port</label>
+                <input type="number" id="env_SHIPPING_SERVICE_PORT" class="op-input" style="font-family:var(--mono); margin-bottom:0;" placeholder="5003">
+              </div>
+              <div>
+                <label style="display:block; font-size:0.72rem; font-weight:700; color:#cbd5e1; margin-bottom:0.2rem;">Store Admin Panel Port</label>
+                <input type="number" id="env_ADMIN_PANEL_PORT" class="op-input" style="font-family:var(--mono); margin-bottom:0;" placeholder="5050">
+              </div>
+              <div>
+                <label style="display:block; font-size:0.72rem; font-weight:700; color:#cbd5e1; margin-bottom:0.2rem;">Core Handler Daemon Port</label>
+                <input type="number" id="env_CORE_HANDLER_PORT" class="op-input" style="font-family:var(--mono); margin-bottom:0;" placeholder="8085">
+              </div>
+              <div>
+                <label style="display:block; font-size:0.72rem; font-weight:700; color:#cbd5e1; margin-bottom:0.2rem;">Control Center Console Port</label>
+                <input type="number" id="env_CONTROL_CENTER_PORT" class="op-input" style="font-family:var(--mono); margin-bottom:0;" placeholder="8090">
+              </div>
+              <div>
+                <label style="display:block; font-size:0.72rem; font-weight:700; color:#cbd5e1; margin-bottom:0.2rem;">WhatsApp Auth API Port</label>
+                <input type="number" id="env_WHATSAPP_AUTH_API_PORT" class="op-input" style="font-family:var(--mono); margin-bottom:0;" placeholder="4000">
+              </div>
+              <div>
+                <label style="display:block; font-size:0.72rem; font-weight:700; color:#cbd5e1; margin-bottom:0.2rem;">WhatsApp Worker Port</label>
+                <input type="number" id="env_WHATSAPP_WORKER_PORT" class="op-input" style="font-family:var(--mono); margin-bottom:0;" placeholder="4001">
+              </div>
+              <div>
+                <label style="display:block; font-size:0.72rem; font-weight:700; color:#cbd5e1; margin-bottom:0.2rem;">WhatsApp Dashboard Port</label>
+                <input type="number" id="env_WHATSAPP_DASHBOARD_PORT" class="op-input" style="font-family:var(--mono); margin-bottom:0;" placeholder="4002">
+              </div>
+              <div>
+                <label style="display:block; font-size:0.72rem; font-weight:700; color:#cbd5e1; margin-bottom:0.2rem;">PG Merchant Admin Port</label>
+                <input type="number" id="env_MERCHANT_ADMIN_PORT" class="op-input" style="font-family:var(--mono); margin-bottom:0;" placeholder="6001">
+              </div>
+
+              <div>
+                <label style="display:block; font-size:0.72rem; font-weight:700; color:#cbd5e1; margin-bottom:0.2rem;">Payment Core Gateway API Port</label>
+                <input type="number" id="env_PAYMENT_API_PORT" class="op-input" style="font-family:var(--mono); margin-bottom:0;" placeholder="6100">
+              </div>
+              <div>
+                <label style="display:block; font-size:0.72rem; font-weight:700; color:#cbd5e1; margin-bottom:0.2rem;">Payment Checkout UI Port</label>
+                <input type="number" id="env_CHECKOUT_PORTAL_PORT" class="op-input" style="font-family:var(--mono); margin-bottom:0;" placeholder="7000">
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 0B: Microservice Base URLs (Deployment Endpoints / Replaces Localhost) -->
+          <div style="background:var(--card-bg); border:1px solid var(--card-border); border-radius:10px; padding:1.25rem; margin-bottom:1.25rem;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.35rem;">
+              <h4 style="font-size:0.95rem; font-weight:800; color:#fff; display:flex; align-items:center; gap:0.4rem;">
+                <span>🌍</span> Service Base URLs &amp; Public Endpoints (Editable / Replaces Localhost)
+              </h4>
+              <span style="font-size:0.7rem; color:#60a5fa; font-weight:700; font-family:var(--mono);">13 BASE ENDPOINTS</span>
+            </div>
+            <p style="font-size:0.75rem; color:var(--text-muted); margin-bottom:1rem;">
+              Used for inter-service communication, webhook callbacks, customer redirects, and browser access.
+            </p>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem;">
+              <div>
+                <label style="display:block; font-size:0.72rem; font-weight:700; color:#cbd5e1; margin-bottom:0.2rem;">Customer Storefront URL</label>
+                <input type="text" id="env_STOREFRONT_URL" class="op-input" style="font-family:var(--mono); margin-bottom:0;" placeholder="http://localhost:5000">
+              </div>
+              <div>
+                <label style="display:block; font-size:0.72rem; font-weight:700; color:#cbd5e1; margin-bottom:0.2rem;">Commerce REST API URL</label>
+                <input type="text" id="env_COMMERCE_API_URL" class="op-input" style="font-family:var(--mono); margin-bottom:0;" placeholder="http://localhost:5001">
+              </div>
+              <div>
+                <label style="display:block; font-size:0.72rem; font-weight:700; color:#cbd5e1; margin-bottom:0.2rem;">Store Admin Panel URL</label>
+                <input type="text" id="env_ADMIN_PANEL_URL" class="op-input" style="font-family:var(--mono); margin-bottom:0;" placeholder="http://localhost:5050">
+              </div>
+              <div>
+                <label style="display:block; font-size:0.72rem; font-weight:700; color:#cbd5e1; margin-bottom:0.2rem;">Control Center Console URL</label>
+                <input type="text" id="env_CONTROL_CENTER_URL" class="op-input" style="font-family:var(--mono); margin-bottom:0;" placeholder="http://localhost:8090">
+              </div>
+              <div>
+                <label style="display:block; font-size:0.72rem; font-weight:700; color:#cbd5e1; margin-bottom:0.2rem;">Core Process Handler URL</label>
+                <input type="text" id="env_CORE_HANDLER_URL" class="op-input" style="font-family:var(--mono); margin-bottom:0;" placeholder="http://localhost:8085">
+              </div>
+              <div>
+                <label style="display:block; font-size:0.72rem; font-weight:700; color:#cbd5e1; margin-bottom:0.2rem;">Notification Service URL</label>
+                <input type="text" id="env_NOTIFICATION_SERVICE_URL" class="op-input" style="font-family:var(--mono); margin-bottom:0;" placeholder="http://localhost:5002">
+              </div>
+              <div>
+                <label style="display:block; font-size:0.72rem; font-weight:700; color:#cbd5e1; margin-bottom:0.2rem;">Shipping Engine Service URL</label>
+                <input type="text" id="env_SHIPPING_SERVICE_URL" class="op-input" style="font-family:var(--mono); margin-bottom:0;" placeholder="http://localhost:5003">
+              </div>
+              <div>
+                <label style="display:block; font-size:0.72rem; font-weight:700; color:#cbd5e1; margin-bottom:0.2rem;">WhatsApp Auth Core API URL</label>
+                <input type="text" id="env_WHATSAPP_AUTH_API_URL" class="op-input" style="font-family:var(--mono); margin-bottom:0;" placeholder="http://localhost:4000">
+              </div>
+              <div>
+                <label style="display:block; font-size:0.72rem; font-weight:700; color:#cbd5e1; margin-bottom:0.2rem;">WhatsApp Worker Daemon URL</label>
+                <input type="text" id="env_WHATSAPP_WORKER_URL" class="op-input" style="font-family:var(--mono); margin-bottom:0;" placeholder="http://localhost:4001">
+              </div>
+              <div>
+                <label style="display:block; font-size:0.72rem; font-weight:700; color:#cbd5e1; margin-bottom:0.2rem;">WhatsApp Developer Dashboard URL</label>
+                <input type="text" id="env_WHATSAPP_DASHBOARD_URL" class="op-input" style="font-family:var(--mono); margin-bottom:0;" placeholder="http://localhost:4002">
+              </div>
+              <div>
+                <label style="display:block; font-size:0.72rem; font-weight:700; color:#cbd5e1; margin-bottom:0.2rem;">Payment Core Gateway API URL</label>
+                <input type="text" id="env_BASE_PAYMENT_API_URL" class="op-input" style="font-family:var(--mono); margin-bottom:0;" placeholder="http://localhost:6100">
+              </div>
+              <div>
+                <label style="display:block; font-size:0.72rem; font-weight:700; color:#cbd5e1; margin-bottom:0.2rem;">Payment Checkout Portal UI URL</label>
+                <input type="text" id="env_BASE_CHECKOUT_URL" class="op-input" style="font-family:var(--mono); margin-bottom:0;" placeholder="http://localhost:7000">
+              </div>
+              <div style="grid-column: span 2;">
+                <label style="display:block; font-size:0.72rem; font-weight:700; color:#cbd5e1; margin-bottom:0.2rem;">PG Merchant Operations Portal URL</label>
+                <input type="text" id="env_BASE_ADMIN_URL" class="op-input" style="font-family:var(--mono); margin-bottom:0;" placeholder="http://localhost:6001">
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 0C: Return URLs & Webhooks -->
+          <div style="background:var(--card-bg); border:1px solid var(--card-border); border-radius:10px; padding:1.25rem; margin-bottom:1.25rem;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.35rem;">
+              <h4 style="font-size:0.95rem; font-weight:800; color:#fff; display:flex; align-items:center; gap:0.4rem;">
+                <span>🔄</span> Return URLs, Callbacks &amp; Webhook Endpoints
+              </h4>
+              <span style="font-size:0.7rem; color:#f59e0b; font-weight:700; font-family:var(--mono);">TRANSACTION ROUTING</span>
+            </div>
+            <p style="font-size:0.75rem; color:var(--text-muted); margin-bottom:1rem;">
+              Configured customer redirect destinations after checkout and inbound webhook listener endpoints.
+            </p>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem;">
+              <div>
+                <label style="display:block; font-size:0.72rem; font-weight:700; color:#cbd5e1; margin-bottom:0.2rem;">Payment Success Return URL Pattern</label>
+                <input type="text" id="env_PAYMENT_SUCCESS_RETURN_URL" class="op-input" style="font-family:var(--mono); margin-bottom:0;" placeholder="http://localhost:5000/account/orders/{order_number}?paymentSuccess=true">
+              </div>
+              <div>
+                <label style="display:block; font-size:0.72rem; font-weight:700; color:#cbd5e1; margin-bottom:0.2rem;">Payment Cancel / Back URL</label>
+                <input type="text" id="env_PAYMENT_CANCEL_RETURN_URL" class="op-input" style="font-family:var(--mono); margin-bottom:0;" placeholder="http://localhost:5000/cart?paymentCanceled=true">
+              </div>
+              <div style="grid-column: span 2;">
+                <label style="display:block; font-size:0.72rem; font-weight:700; color:#cbd5e1; margin-bottom:0.2rem;">Commerce Payment Webhook Inbound URL</label>
+                <input type="text" id="env_PAYMENT_WEBHOOK_URL" class="op-input" style="font-family:var(--mono); margin-bottom:0;" placeholder="http://localhost:5001/api/v1/webhooks/payment">
+              </div>
+              <div>
+                <label style="display:block; font-size:0.72rem; font-weight:700; color:#cbd5e1; margin-bottom:0.2rem;">WhatsApp Webhook Inbound URL</label>
+                <input type="text" id="env_WHATSAPP_WEBHOOK_URL" class="op-input" style="font-family:var(--mono); margin-bottom:0;" placeholder="http://localhost:4000/api/v1/internal/whatsapp/webhook">
+              </div>
+              <div>
+                <label style="display:block; font-size:0.72rem; font-weight:700; color:#cbd5e1; margin-bottom:0.2rem;">WhatsApp Auth Callback / Redirect URI</label>
+                <input type="text" id="env_WHATSAPP_AUTH_REDIRECT_URI" class="op-input" style="font-family:var(--mono); margin-bottom:0;" placeholder="http://localhost:5000/auth/whatsapp/callback">
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 1: Master Admin Password & Security -->
+          <div style="background:var(--card-bg); border:1px solid var(--card-border); border-radius:10px; padding:1.25rem; margin-bottom:1.25rem;">
+            <h4 style="font-size:0.95rem; font-weight:800; color:#fff; margin-bottom:0.35rem; display:flex; align-items:center; gap:0.4rem;">
+              <span>🔐</span> Universal Admin Master Password &amp; Cryptography
+            </h4>
+            <p style="font-size:0.75rem; color:var(--text-muted); margin-bottom:1rem;">
+              Master password used across all admin consoles (Store Admin, Control Center, Merchant Admin, WhatsApp Dashboard).
+            </p>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+              <div>
+                <label style="display:block; font-size:0.75rem; font-weight:700; color:#cbd5e1; margin-bottom:0.25rem;">Universal Admin Password</label>
+                <input type="text" id="env_ADMIN_PASSWORD" class="op-input" style="font-family:var(--mono);" placeholder="Enter Master Password...">
+              </div>
+              <div>
+                <label style="display:block; font-size:0.75rem; font-weight:700; color:#cbd5e1; margin-bottom:0.25rem;">Operator Console Password</label>
+                <input type="text" id="env_OPERATOR_PASSWORD" class="op-input" style="font-family:var(--mono);" placeholder="OperatorMasterPass2026!">
+              </div>
+            </div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-top:0.75rem;">
+              <div>
+                <label style="display:block; font-size:0.75rem; font-weight:700; color:#94a3b8; margin-bottom:0.25rem; display:flex; justify-content:space-between; align-items:center;">
+                  <span>JWT Secret (Min 32 chars)</span>
+                  <span style="font-size:0.65rem; color:#f59e0b; background:rgba(245,158,11,0.12); border:1px solid rgba(245,158,11,0.3); padding:1px 6px; border-radius:4px; font-weight:600;">🔒 LOCKED</span>
+                </label>
+                <input type="text" id="env_JWT_SECRET" class="op-input" readonly title="Core Security Secret (Protected from Edits)" style="font-family:var(--mono); background:rgba(15, 23, 42, 0.7); color:#64748b; cursor:not-allowed; border-color:rgba(255,255,255,0.06);" placeholder="jwt_secret_key...">
+              </div>
+              <div>
+                <label style="display:block; font-size:0.75rem; font-weight:700; color:#94a3b8; margin-bottom:0.25rem; display:flex; justify-content:space-between; align-items:center;">
+                  <span>Encryption Master Key (64 hex)</span>
+                  <span style="font-size:0.65rem; color:#f59e0b; background:rgba(245,158,11,0.12); border:1px solid rgba(245,158,11,0.3); padding:1px 6px; border-radius:4px; font-weight:600;">🔒 LOCKED</span>
+                </label>
+                <input type="text" id="env_ENCRYPTION_MASTER_KEY" class="op-input" readonly title="Core Security Secret (Protected from Edits)" style="font-family:var(--mono); background:rgba(15, 23, 42, 0.7); color:#64748b; cursor:not-allowed; border-color:rgba(255,255,255,0.06);" placeholder="64-char hex key">
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 2: Database & Supabase Configuration -->
+          <div style="background:var(--card-bg); border:1px solid var(--card-border); border-radius:10px; padding:1.25rem; margin-bottom:1.25rem;">
+            <h4 style="font-size:0.95rem; font-weight:800; color:#fff; margin-bottom:0.35rem; display:flex; align-items:center; gap:0.4rem;">
+              <span>🗄️</span> Database &amp; Supabase Cloud Persistence
+            </h4>
+            <p style="font-size:0.75rem; color:var(--text-muted); margin-bottom:1rem;">
+              Configure canonical SQLite path or Supabase PostgreSQL connection strings.
+            </p>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:0.75rem;">
+              <div>
+                <label style="display:block; font-size:0.75rem; font-weight:700; color:#cbd5e1; margin-bottom:0.25rem;">SQLite DB Path</label>
+                <input type="text" id="env_SQLITE_DB_PATH" class="op-input" style="font-family:var(--mono);" placeholder="./data/unified_ecommerce.sqlite">
+              </div>
+              <div>
+                <label style="display:block; font-size:0.75rem; font-weight:700; color:#cbd5e1; margin-bottom:0.25rem;">Use SQLite Fallback (true/false)</label>
+                <input type="text" id="env_USE_SQLITE_FALLBACK" class="op-input" style="font-family:var(--mono);" placeholder="true">
+              </div>
+            </div>
+            <div style="display:grid; grid-template-columns:1.2fr 1fr; gap:1rem;">
+              <div>
+                <label style="display:block; font-size:0.75rem; font-weight:700; color:#cbd5e1; margin-bottom:0.25rem;">Supabase Project URL</label>
+                <input type="text" id="env_SUPABASE_URL" class="op-input" style="font-family:var(--mono);" placeholder="https://xyzcompany.supabase.co">
+              </div>
+              <div>
+                <label style="display:block; font-size:0.75rem; font-weight:700; color:#cbd5e1; margin-bottom:0.25rem;">Supabase Service Role Key</label>
+                <input type="text" id="env_SUPABASE_SERVICE_ROLE_KEY" class="op-input" style="font-family:var(--mono);" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...">
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 3: WhatsApp Engine & Bot Identifiers -->
+          <div style="background:var(--card-bg); border:1px solid var(--card-border); border-radius:10px; padding:1.25rem; margin-bottom:1.25rem;">
+            <h4 style="font-size:0.95rem; font-weight:800; color:#fff; margin-bottom:0.35rem; display:flex; align-items:center; gap:0.4rem;">
+              <span>📱</span> WhatsApp Passwordless Auth &amp; Dispatcher
+            </h4>
+            <p style="font-size:0.75rem; color:var(--text-muted); margin-bottom:1rem;">
+              Store bot sender phone, store owner alert destination, and Baileys worker secret.
+            </p>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:0.75rem;">
+              <div>
+                <label style="display:block; font-size:0.75rem; font-weight:700; color:#cbd5e1; margin-bottom:0.25rem;">Store Owner WhatsApp Phone (Incoming Orders)</label>
+                <input type="text" id="env_STORE_OWNER_WHATSAPP" class="op-input" style="font-family:var(--mono);" placeholder="+919876543210">
+              </div>
+              <div>
+                <label style="display:block; font-size:0.75rem; font-weight:700; color:#cbd5e1; margin-bottom:0.25rem;">WhatsApp Bot Sender Phone</label>
+                <input type="text" id="env_WHATSAPP_BOT_PHONE" class="op-input" style="font-family:var(--mono);" placeholder="+919876543211">
+              </div>
+            </div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+              <div>
+                <label style="display:block; font-size:0.75rem; font-weight:700; color:#94a3b8; margin-bottom:0.25rem; display:flex; justify-content:space-between; align-items:center;">
+                  <span>Worker Internal Secret</span>
+                  <span style="font-size:0.65rem; color:#f59e0b; background:rgba(245,158,11,0.12); border:1px solid rgba(245,158,11,0.3); padding:1px 6px; border-radius:4px; font-weight:600;">🔒 LOCKED</span>
+                </label>
+                <input type="text" id="env_WORKER_INTERNAL_SECRET" class="op-input" readonly title="Internal Worker Secret (Protected from Edits)" style="font-family:var(--mono); background:rgba(15, 23, 42, 0.7); color:#64748b; cursor:not-allowed; border-color:rgba(255,255,255,0.06);" placeholder="worker_secret_key...">
+              </div>
+              <div>
+                <label style="display:block; font-size:0.75rem; font-weight:700; color:#94a3b8; margin-bottom:0.25rem; display:flex; justify-content:space-between; align-items:center;">
+                  <span>Admin API Key</span>
+                  <span style="font-size:0.65rem; color:#f59e0b; background:rgba(245,158,11,0.12); border:1px solid rgba(245,158,11,0.3); padding:1px 6px; border-radius:4px; font-weight:600;">🔒 LOCKED</span>
+                </label>
+                <input type="text" id="env_ADMIN_API_KEY" class="op-input" readonly title="Internal System API Key (Protected from Edits)" style="font-family:var(--mono); background:rgba(15, 23, 42, 0.7); color:#64748b; cursor:not-allowed; border-color:rgba(255,255,255,0.06);" placeholder="admin_super_secret_key...">
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 4: Shiprocket Logistics & Pickup Settings -->
+          <div style="background:var(--card-bg); border:1px solid var(--card-border); border-radius:10px; padding:1.25rem; margin-bottom:1.25rem;">
+            <h4 style="font-size:0.95rem; font-weight:800; color:#fff; margin-bottom:0.35rem; display:flex; align-items:center; gap:0.4rem;">
+              <span>🚚</span> Logistics &amp; Shiprocket Surface Credentials
+            </h4>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+              <div>
+                <label style="display:block; font-size:0.75rem; font-weight:700; color:#cbd5e1; margin-bottom:0.25rem;">Warehouse Pickup Pincode</label>
+                <input type="text" id="env_SHIPPING_PICKUP_PINCODE" class="op-input" style="font-family:var(--mono);" placeholder="110059">
+              </div>
+              <div>
+                <label style="display:block; font-size:0.75rem; font-weight:700; color:#94a3b8; margin-bottom:0.25rem; display:flex; justify-content:space-between; align-items:center;">
+                  <span>Shiprocket API Email</span>
+                  <span style="font-size:0.65rem; color:#f59e0b; background:rgba(245,158,11,0.12); border:1px solid rgba(245,158,11,0.3); padding:1px 6px; border-radius:4px; font-weight:600;">🔒 LOCKED</span>
+                </label>
+                <input type="email" id="env_SHIPROCKET_EMAIL" class="op-input" readonly title="Logistics API Email (Protected from Edits)" style="font-family:var(--mono); background:rgba(15, 23, 42, 0.7); color:#64748b; cursor:not-allowed; border-color:rgba(255,255,255,0.06);" placeholder="logistics@store.local">
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 5: Payment Gateway & Telegram Bot -->
+          <div style="background:var(--card-bg); border:1px solid var(--card-border); border-radius:10px; padding:1.25rem; margin-bottom:1.5rem;">
+            <h4 style="font-size:0.95rem; font-weight:800; color:#fff; display:flex; align-items:center; gap:0.4rem; margin-bottom:0.35rem;">
+              <span>💳</span> Payment Gateway &amp; Telegram Bot
+            </h4>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:0.75rem;">
+              <div>
+                <label style="display:block; font-size:0.75rem; font-weight:700; color:#94a3b8; margin-bottom:0.25rem; display:flex; justify-content:space-between; align-items:center;">
+                  <span>Merchant ID</span>
+                  <span style="font-size:0.65rem; color:#f59e0b; background:rgba(245,158,11,0.12); border:1px solid rgba(245,158,11,0.3); padding:1px 6px; border-radius:4px; font-weight:600;">🔒 LOCKED</span>
+                </label>
+                <input type="text" id="env_MERCHANT_ID" class="op-input" readonly title="Primary Merchant ID (Protected from Edits)" style="font-family:var(--mono); background:rgba(15, 23, 42, 0.7); color:#64748b; cursor:not-allowed; border-color:rgba(255,255,255,0.06);" placeholder="00000000-0000-0000-0000-000000000001">
+              </div>
+              <div>
+                <label style="display:block; font-size:0.75rem; font-weight:700; color:#94a3b8; margin-bottom:0.25rem; display:flex; justify-content:space-between; align-items:center;">
+                  <span>Merchant Webhook Secret</span>
+                  <span style="font-size:0.65rem; color:#f59e0b; background:rgba(245,158,11,0.12); border:1px solid rgba(245,158,11,0.3); padding:1px 6px; border-radius:4px; font-weight:600;">🔒 LOCKED</span>
+                </label>
+                <input type="text" id="env_MERCHANT_WEBHOOK_SECRET" class="op-input" readonly title="Merchant Webhook Secret (Protected from Edits)" style="font-family:var(--mono); background:rgba(15, 23, 42, 0.7); color:#64748b; cursor:not-allowed; border-color:rgba(255,255,255,0.06);" placeholder="webhook_secret_key...">
+              </div>
+            </div>
+            <div style="display:grid; grid-template-columns:1.2fr 1fr; gap:1rem;">
+              <div>
+                <label style="display:block; font-size:0.75rem; font-weight:700; color:#cbd5e1; margin-bottom:0.25rem;">Telegram Bot Token</label>
+                <input type="text" id="env_TELEGRAM_BOT_TOKEN" class="op-input" style="font-family:var(--mono);" placeholder="1234567890:ABCdefGHIjklMNOpqrSTUvwxYZ">
+              </div>
+              <div>
+                <label style="display:block; font-size:0.75rem; font-weight:700; color:#cbd5e1; margin-bottom:0.25rem;">Telegram Admin Chat ID</label>
+                <input type="text" id="env_TELEGRAM_ADMIN_CHAT_ID" class="op-input" style="font-family:var(--mono);" placeholder="100000001">
+              </div>
+            </div>
+          </div>
+
+          <!-- Submit Button -->
+          <div style="display:flex; gap:1rem; align-items:center;">
+            <button type="submit" class="btn-ctrl" id="btnSaveEnv" style="background:var(--accent); color:#090d16; font-weight:800; padding:0.85rem 2rem; font-size:0.95rem; cursor:pointer;">
+              💾 Push Credentials Directly to Code (.env)
+            </button>
+            <span id="saveCredStatus" style="font-size:0.82rem; color:var(--accent); display:none;">✓ Pushed successfully!</span>
+          </div>
+        </form>
+      </div>
+
+      <!-- Right Column: Cloudflare Tunnel Guided Deployment -->
+      <div>
+        <div style="background:var(--card-bg); border:1px solid #3b82f6; border-radius:12px; padding:1.5rem; box-shadow:0 10px 30px rgba(59,130,246,0.1);">
+          <div style="display:flex; align-items:center; gap:0.6rem; margin-bottom:0.75rem;">
+            <span style="font-size:1.5rem;">🌐</span>
+            <div>
+              <h3 style="font-size:1.15rem; font-weight:800; color:#fff;">Cloudflare Tunnel Deployment Guide</h3>
+              <div style="font-size:0.75rem; color:#60a5fa;">Zero-Trust Public Hostname Routing Guide</div>
+            </div>
+          </div>
+          <p style="font-size:0.82rem; color:var(--text-muted); line-height:1.55; margin-bottom:1.25rem;">
+            To deploy this platform live without opening firewall ports or risking public IP exposure, create a single Cloudflare Tunnel (<code>cloudflared</code>) and map the exact <strong>13 Public Hostname Routes</strong> below:
+          </p>
+
+          <!-- 13 Public Routes Table -->
+          <div style="background:#0f172a; border:1px solid var(--card-border); border-radius:8px; overflow:hidden; margin-bottom:1.5rem;">
+            <table style="width:100%; border-collapse:collapse; font-size:0.75rem; font-family:var(--mono);">
+              <thead>
+                <tr style="background:#1e293b; border-bottom:1px solid var(--card-border); text-align:left; color:#94a3b8;">
+                  <th style="padding:0.5rem 0.65rem;">Public Subdomain</th>
+                  <th style="padding:0.5rem 0.65rem;">Target Service Port</th>
+                  <th style="padding:0.5rem 0.65rem;">Service Role</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr style="border-bottom:1px solid #1e293b; background:rgba(16, 185, 129, 0.08);">
+                  <td style="padding:0.5rem 0.65rem; color:#34d399; font-weight:800;">
+                    <span id="tblStoreDomain">vienta.shop</span>
+                    <span style="font-size:0.65rem; background:#059669; color:#fff; padding:0.1rem 0.35rem; border-radius:3px; margin-left:0.35rem;">APEX ROOT STORE</span>
+                  </td>
+                  <td style="padding:0.5rem 0.65rem; color:#34d399; font-weight:700;">http://localhost:5000</td>
+                  <td style="padding:0.5rem 0.65rem; color:#f8fafc; font-weight:700;">Customer Storefront (domain.com)</td>
+                </tr>
+                <tr style="border-bottom:1px solid #1e293b;">
+                  <td style="padding:0.45rem 0.65rem; color:#38bdf8;" id="tblApiDomain">api.vienta.shop</td>
+                  <td style="padding:0.45rem 0.65rem; color:#34d399;">http://localhost:5001</td>
+                  <td style="padding:0.45rem 0.65rem; color:#cbd5e1;">Commerce REST API</td>
+                </tr>
+                <tr style="border-bottom:1px solid #1e293b;">
+                  <td style="padding:0.45rem 0.65rem; color:#38bdf8;" id="tblPayDomain">pay.vienta.shop</td>
+                  <td style="padding:0.45rem 0.65rem; color:#34d399;">http://localhost:7000</td>
+                  <td style="padding:0.45rem 0.65rem; color:#cbd5e1;">Payment Checkout UI</td>
+                </tr>
+                <tr style="border-bottom:1px solid #1e293b;">
+                  <td style="padding:0.45rem 0.65rem; color:#38bdf8;" id="tblPayApiDomain">pay-api.vienta.shop</td>
+                  <td style="padding:0.45rem 0.65rem; color:#34d399;">http://localhost:6100</td>
+                  <td style="padding:0.45rem 0.65rem; color:#cbd5e1;">YouPi Core Payment API</td>
+                </tr>
+                <tr style="border-bottom:1px solid #1e293b;">
+                  <td style="padding:0.45rem 0.65rem; color:#38bdf8;" id="tblMerchantDomain">merchant.vienta.shop</td>
+                  <td style="padding:0.45rem 0.65rem; color:#34d399;">http://localhost:6001</td>
+                  <td style="padding:0.45rem 0.65rem; color:#cbd5e1;">PG Merchant Admin</td>
+                </tr>
+                <tr style="border-bottom:1px solid #1e293b;">
+                  <td style="padding:0.45rem 0.65rem; color:#38bdf8;" id="tblAdminDomain">admin.vienta.shop</td>
+                  <td style="padding:0.45rem 0.65rem; color:#34d399;">http://localhost:5050</td>
+                  <td style="padding:0.45rem 0.65rem; color:#cbd5e1;">Store Admin Panel</td>
+                </tr>
+                <tr style="border-bottom:1px solid #1e293b;">
+                  <td style="padding:0.45rem 0.65rem; color:#38bdf8;" id="tblOpsDomain">control.vienta.shop</td>
+                  <td style="padding:0.45rem 0.65rem; color:#34d399;">http://localhost:8090</td>
+                  <td style="padding:0.45rem 0.65rem; color:#cbd5e1;">Control Center Console</td>
+                </tr>
+                <tr style="border-bottom:1px solid #1e293b;">
+                  <td style="padding:0.45rem 0.65rem; color:#38bdf8;" id="tblWaApiDomain">whatsapp-api.vienta.shop</td>
+                  <td style="padding:0.45rem 0.65rem; color:#34d399;">http://localhost:4000</td>
+                  <td style="padding:0.45rem 0.65rem; color:#cbd5e1;">WhatsApp Auth API</td>
+                </tr>
+                <tr style="border-bottom:1px solid #1e293b;">
+                  <td style="padding:0.45rem 0.65rem; color:#38bdf8;" id="tblWaWorkerDomain">whatsapp-worker.vienta.shop</td>
+                  <td style="padding:0.45rem 0.65rem; color:#34d399;">http://localhost:4001</td>
+                  <td style="padding:0.45rem 0.65rem; color:#cbd5e1;">WhatsApp Worker Daemon</td>
+                </tr>
+                <tr style="border-bottom:1px solid #1e293b;">
+                  <td style="padding:0.45rem 0.65rem; color:#38bdf8;" id="tblWaDashDomain">whatsapp.vienta.shop</td>
+                  <td style="padding:0.45rem 0.65rem; color:#34d399;">http://localhost:4002</td>
+                  <td style="padding:0.45rem 0.65rem; color:#cbd5e1;">WhatsApp Dev Dashboard</td>
+                </tr>
+                <tr style="border-bottom:1px solid #1e293b;">
+                  <td style="padding:0.45rem 0.65rem; color:#38bdf8;" id="tblCoreDomain">core.vienta.shop</td>
+                  <td style="padding:0.45rem 0.65rem; color:#34d399;">http://localhost:8085</td>
+                  <td style="padding:0.45rem 0.65rem; color:#cbd5e1;">Core Process Handler</td>
+                </tr>
+                <tr style="border-bottom:1px solid #1e293b;">
+                  <td style="padding:0.45rem 0.65rem; color:#38bdf8;" id="tblShipDomain">shipping.vienta.shop</td>
+                  <td style="padding:0.45rem 0.65rem; color:#34d399;">http://localhost:5003</td>
+                  <td style="padding:0.45rem 0.65rem; color:#cbd5e1;">Shiprocket Surface Calc</td>
+                </tr>
+                <tr>
+                  <td style="padding:0.45rem 0.65rem; color:#38bdf8;" id="tblNotifyDomain">notify.vienta.shop</td>
+                  <td style="padding:0.45rem 0.65rem; color:#34d399;">http://localhost:5002</td>
+                  <td style="padding:0.45rem 0.65rem; color:#cbd5e1;">Notification Service</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Step by Step Setup Instructions -->
+          <h4 style="font-size:0.88rem; font-weight:800; color:#fff; margin-bottom:0.5rem;">Step-by-Step Tunnel Execution:</h4>
+          <ol style="font-size:0.8rem; color:var(--text-muted); padding-left:1.25rem; line-height:1.6;">
+            <li>Login to Cloudflare Dashboard &rarr; <strong>Zero Trust</strong> &rarr; <strong>Networks</strong> &rarr; <strong>Tunnels</strong>.</li>
+            <li>Click <strong>Create a Tunnel</strong> &rarr; Name it <code>ecommerce-unified-prod</code>.</li>
+            <li>Run the connector command displayed on your host terminal (Windows / Linux).</li>
+            <li>Under <strong>Public Hostnames</strong>, add the 13 mappings listed in the table above pointing to <code>HTTP</code> and <code>localhost:PORT</code>.</li>
+            <li>Enter your domain in the <strong>Quick Domain Deployer</strong> on the left, click <strong>Convert All URLs</strong>, and click <strong>Push Credentials Directly to Code</strong>.</li>
+          </ol>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- VIEW 3: FULL SYSTEM SNAPSHOTS & REMOTE BACKUPS CONSOLE                    -->
+  <!-- ========================================================================= -->
+  <div id="snapshotsView" style="display:none; padding:1.25rem; flex:1; overflow-y:auto;">
+    <div style="max-width: 1200px; margin: 0 auto;">
+      <!-- Header & Action Row -->
+      <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:1.5rem; background:#0f172a; border:1px solid #1e293b; border-radius:12px; padding:1.25rem 1.5rem; flex-wrap:wrap; gap:1rem;">
+        <div>
+          <div style="display:flex; align-items:center; gap:0.6rem; margin-bottom:0.35rem;">
+            <span style="font-size:1.5rem;">💾</span>
+            <h2 style="font-size:1.25rem; font-weight:800; color:#fff; margin:0;">SYSTEM SNAPSHOTS &amp; REMOTE BACKUPS</h2>
+            <span class="badge" style="background:rgba(59,130,246,0.15); color:#60a5fa; border:1px solid rgba(59,130,246,0.3); font-size:0.7rem; padding:0.2rem 0.6rem;">Full Root Archive</span>
+          </div>
+          <p style="font-size:0.825rem; color:var(--text-muted); margin:0; max-width:720px; line-height:1.5;">
+            One-click complete snapshot of the entire platform workspace (microservices, storefront, apps, packages, SQLite databases, configs &amp; assets). Accelerated with multi-engine native compression (TAR.GZ / RAR / ZIP) completing 240 MB backups in under 15 seconds.
+          </p>
+        </div>
+        <div style="display:flex; gap:0.75rem; align-items:center; flex-wrap:wrap;">
+          <select id="snapshotFormatSelect" class="btn-ctrl" style="background:#1e293b; border:1px solid #334155; padding:0.6rem 0.85rem; font-size:0.8rem; color:#fff; border-radius:6px; cursor:pointer;">
+            <option value="auto">⚡ Auto Engine (Fastest Available)</option>
+            <option value="rar">🗜️ RAR Archive (WinRAR)</option>
+            <option value="tar.gz">🚀 TAR.GZ (Ultra-Fast 0-Install)</option>
+            <option value="zip">📦 ZIP (Standard)</option>
+          </select>
+          <button type="button" class="btn-ctrl" style="background:#1e293b; border:1px solid #334155; padding:0.65rem 1rem; font-size:0.82rem;" onclick="loadSnapshots()">
+            🔄 Refresh List
+          </button>
+          <button type="button" id="btnCreateSnapshot" class="btn-ctrl" style="background:linear-gradient(135deg, #2563eb, #1d4ed8); border:none; padding:0.65rem 1.25rem; font-size:0.85rem; font-weight:800; box-shadow:0 0 15px rgba(37,99,235,0.4);" onclick="createInstantSnapshot()">
+            ⚡ Create Instant Full Snapshot
+          </button>
+        </div>
+      </div>
+
+      <!-- Active Snapshot Creation Progress Banner -->
+      <div id="snapshotActiveBanner" style="display:none; margin-bottom:1.5rem; background:rgba(37,99,235,0.15); border:1px solid rgba(59,130,246,0.4); border-radius:10px; padding:1rem 1.25rem; align-items:center; gap:1rem;">
+        <div class="spinner" style="width:22px; height:22px; border:2px solid #60a5fa; border-top-color:transparent; border-radius:50%; animation:spin 0.8s linear infinite;"></div>
+        <div style="flex:1;">
+          <div style="font-weight:700; color:#fff; font-size:0.9rem;" id="snapshotActiveTitle">Compiling Full Root Workspace Snapshot...</div>
+          <div style="font-size:0.78rem; color:#93c5fd;" id="snapshotActiveSubtitle">Compressing all apps, services, data, and packages into standalone archive. Please wait a moment.</div>
+        </div>
+        <div style="font-size:0.82rem; font-weight:700; color:#38bdf8;" id="snapshotActiveTimer">0s elapsed</div>
+      </div>
+
+      <!-- Quick Metrics Cards -->
+      <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap:1rem; margin-bottom:1.5rem;">
+        <div class="card" style="padding:1rem 1.25rem;">
+          <div style="font-size:0.75rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; margin-bottom:0.35rem;">Total Snapshots</div>
+          <div style="font-size:1.75rem; font-weight:900; color:#fff;" id="metricTotalSnapshots">0</div>
+          <div style="font-size:0.72rem; color:#64748b; margin-top:0.2rem;">Stored in <code>d:/ECOMMERCE/snapshots/</code></div>
+        </div>
+        <div class="card" style="padding:1rem 1.25rem;">
+          <div style="font-size:0.75rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; margin-bottom:0.35rem;">Total Archive Storage</div>
+          <div style="font-size:1.75rem; font-weight:900; color:#38bdf8;" id="metricTotalStorage">0 B</div>
+          <div style="font-size:0.72rem; color:#64748b; margin-top:0.2rem;">Compressed disk footprint</div>
+        </div>
+        <div class="card" style="padding:1rem 1.25rem;">
+          <div style="font-size:0.75rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; margin-bottom:0.35rem;">Last Snapshot</div>
+          <div style="font-size:1.1rem; font-weight:800; color:#34d399; line-height:1.4;" id="metricLastSnapshot">Never</div>
+          <div style="font-size:0.72rem; color:#64748b; margin-top:0.2rem;">Latest backup timestamp</div>
+        </div>
+      </div>
+
+      <!-- Remote Download Guidance Box -->
+      <div style="background:#090d16; border:1px solid #1e293b; border-radius:10px; padding:1rem 1.25rem; margin-bottom:1.5rem; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem;">
+        <div>
+          <span style="font-weight:700; font-size:0.85rem; color:#fff;">🌐 Remote Download Endpoint:</span>
+          <span style="font-family:monospace; font-size:0.8rem; color:#38bdf8; margin-left:0.5rem;" id="snapshotRemoteBase">/api/snapshots/download/:filename</span>
+        </div>
+        <span style="font-size:0.75rem; color:var(--text-muted);">Direct streaming &amp; internet-accessible via Cloudflare Tunnel</span>
+      </div>
+
+      <!-- Snapshots History Table -->
+      <div class="card" style="padding:0; overflow:hidden;">
+        <div style="padding:1rem 1.25rem; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.75rem;">
+          <h3 style="margin:0; font-size:0.95rem; font-weight:800; color:#fff;">SNAPSHOT ARCHIVES HISTORY</h3>
+          <input type="text" id="snapshotSearchInput" placeholder="Filter snapshots by date or name..." oninput="filterSnapshotsTable()" style="background:#1e293b; border:1px solid #334155; color:#fff; padding:0.35rem 0.75rem; border-radius:6px; font-size:0.78rem; width:260px; outline:none;">
+        </div>
+        <div style="overflow-x:auto;">
+          <table style="width:100%; border-collapse:collapse; text-align:left; font-size:0.82rem;">
+            <thead>
+              <tr style="border-bottom:1px solid var(--border); background:#090d16; color:var(--text-muted);">
+                <th style="padding:0.75rem 1.25rem;">Archive Filename</th>
+                <th style="padding:0.75rem 1rem;">Created Timestamp</th>
+                <th style="padding:0.75rem 1rem;">Archive Size</th>
+                <th style="padding:0.75rem 1.25rem; text-align:right;">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="snapshotsTableBody">
+              <tr>
+                <td colspan="4" style="padding:2.5rem; text-align:center; color:var(--text-muted);">
+                  Loading snapshots...
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+  <!-- Confirmation Modal for Disruptive/Destructive Actions (Section 29) -->
+  <div class="confirm-overlay" id="confirmModal">
+    <div class="confirm-box">
+      <h3 style="font-size:1.15rem; font-weight:800; margin-bottom:0.75rem; color:#fff;" id="confirmTitle">Confirm Action</h3>
+      <p style="font-size:0.875rem; color:var(--text-muted); margin-bottom:1.5rem; line-height:1.4;" id="confirmPrompt">
+        This action will momentarily interrupt service operations.
+      </p>
+      <div style="display:flex; justify-content:flex-end; gap:0.75rem;">
+        <button class="btn-ctrl" style="padding:0.55rem 1rem;" onclick="closeConfirmModal()">Cancel</button>
+        <button class="btn-ctrl" style="padding:0.55rem 1rem; background:var(--primary);" id="confirmActionBtn">Confirm</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let operatorToken = localStorage.getItem('lumen_operator_token');
+    let currentServices = [];
+    let allLogs = [];
+    let activeLogCategory = 'all';
+
+    function startControlCenter() {
+      fetchServices();
+      fetchMetrics();
+      loadSnapshots();
+      connectSse();
+      fetch('/api/environment/mode').then(r => r.json()).then(d => {
+        if (d.success) applyModeStateUI(d.mode, d.primaryDomain, d.domainExtension, d);
+      }).catch(() => {});
+      if (!window._controlCenterIntervals) {
+        window._controlCenterIntervals = true;
+        setInterval(fetchMetrics, 5000);
+        setInterval(fetchServices, 5000);
+      }
+    }
+
+    function init() {
+      const autologin = localStorage.getItem('lumen_operator_autologin') === 'true';
+      const storedToken = autologin ? localStorage.getItem('lumen_operator_token') : null;
+
+      const loginScreen = document.getElementById('operatorLoginScreen');
+      const appWrapper = document.getElementById('controlCenterWrapper');
+
+      if (autologin && storedToken) {
+        operatorToken = storedToken;
+        if (loginScreen) loginScreen.style.display = 'none';
+        if (appWrapper) appWrapper.style.display = 'flex';
+        startControlCenter();
+      } else {
+        // Reload logout: clear session if autologin was not enabled
+        localStorage.removeItem('lumen_operator_token');
+        localStorage.removeItem('lumen_operator_autologin');
+        sessionStorage.removeItem('lumen_operator_token');
+        operatorToken = null;
+        if (appWrapper) appWrapper.style.display = 'none';
+        if (loginScreen) loginScreen.style.display = 'flex';
+      }
+    }
+
+    async function handleOperatorUniversalLogin(event) {
+      event.preventDefault();
+      const password = document.getElementById('opUniversalPass').value.trim();
+      const btn = document.getElementById('opLoginBtn');
+      const err = document.getElementById('opErr');
+      const autoLogin = document.getElementById('opAutoLoginCheck')?.checked;
+
+      btn.disabled = true;
+      btn.textContent = 'Verifying Security Token...';
+      err.style.display = 'none';
+
+      try {
+        const res = await fetch('/api/operator/verify-password', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ password })
+        });
+        const data = await res.json();
+
+        if (data.success && data.token) {
+          operatorToken = data.token;
+          if (autoLogin) {
+            localStorage.setItem('lumen_operator_autologin', 'true');
+            localStorage.setItem('lumen_operator_token', operatorToken);
+          } else {
+            localStorage.removeItem('lumen_operator_autologin');
+            localStorage.removeItem('lumen_operator_token');
+            sessionStorage.setItem('lumen_operator_token', operatorToken);
+          }
+          const loginScreen = document.getElementById('operatorLoginScreen');
+          const appWrapper = document.getElementById('controlCenterWrapper');
+          if (loginScreen) loginScreen.style.display = 'none';
+          if (appWrapper) appWrapper.style.display = 'flex';
+          startControlCenter();
+        } else {
+          err.textContent = data.error || 'Operator access denied';
+          err.style.display = 'block';
+        }
+      } catch (e) {
+        err.textContent = 'Connection error: ' + e.message;
+        err.style.display = 'block';
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Unlock Console ›';
+      }
+    }
+
+    function logoutOperator() {
+      localStorage.removeItem('lumen_operator_token');
+      localStorage.removeItem('lumen_operator_autologin');
+      sessionStorage.removeItem('lumen_operator_token');
+      operatorToken = null;
+
+      const appWrapper = document.getElementById('controlCenterWrapper');
+      const loginScreen = document.getElementById('operatorLoginScreen');
+      const passInput = document.getElementById('opUniversalPass');
+
+      if (appWrapper) appWrapper.style.display = 'none';
+      if (loginScreen) loginScreen.style.display = 'flex';
+      if (passInput) passInput.value = '';
+    }
+
+    function switchConsoleView(view) {
+      const workspace = document.getElementById('workspaceView');
+      const credentials = document.getElementById('credentialsView');
+      const snapshots = document.getElementById('snapshotsView');
+      const btnWs = document.getElementById('btnViewWorkspace');
+      const btnCred = document.getElementById('btnViewCredentials');
+      const btnSnap = document.getElementById('btnViewSnapshots');
+
+      // Reset all buttons
+      btnWs.style.background = 'transparent';
+      btnWs.style.color = 'var(--text-muted)';
+      btnCred.style.background = 'transparent';
+      btnCred.style.color = 'var(--text-muted)';
+      if (btnSnap) {
+        btnSnap.style.background = 'transparent';
+        btnSnap.style.color = 'var(--text-muted)';
+      }
+
+      if (view === 'credentials') {
+        workspace.style.display = 'none';
+        if (snapshots) snapshots.style.display = 'none';
+        credentials.style.display = 'block';
+        btnCred.style.background = 'var(--primary)';
+        btnCred.style.color = '#fff';
+        loadCredentials();
+      } else if (view === 'snapshots') {
+        workspace.style.display = 'none';
+        credentials.style.display = 'none';
+        if (snapshots) snapshots.style.display = 'block';
+        if (btnSnap) {
+          btnSnap.style.background = 'var(--primary)';
+          btnSnap.style.color = '#fff';
+        }
+        loadSnapshots();
+      } else {
+        credentials.style.display = 'none';
+        if (snapshots) snapshots.style.display = 'none';
+        workspace.style.display = 'grid';
+        btnWs.style.background = 'var(--primary)';
+        btnWs.style.color = '#fff';
+        fetchServices();
+      }
+    }
+
+    // =========================================================================
+    // SNAPSHOTS & BACKUPS CONTROLLER
+    // =========================================================================
+    function escapeHtml(str) {
+      if (str === null || str === undefined) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    function showActionToast(msg) {
+      let toast = document.getElementById('globalActionToast');
+      if (!toast) {
+        toast = document.createElement('div');
+        toast.id = 'globalActionToast';
+        toast.style.cssText = 'position:fixed; bottom:24px; right:24px; background:#1e293b; border:1px solid #3b82f6; color:#fff; padding:12px 20px; border-radius:8px; font-size:0.85rem; font-weight:700; z-index:9999; box-shadow:0 10px 25px rgba(0,0,0,0.5); display:flex; align-items:center; gap:8px; transition:all 0.3s ease; opacity:0; pointer-events:none;';
+        document.body.appendChild(toast);
+      }
+      toast.innerHTML = `<span>⚡</span> <span>${escapeHtml(msg)}</span>`;
+      toast.style.opacity = '1';
+      toast.style.transform = 'translateY(0)';
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateY(10px)';
+      }, 3500);
+    }
+
+    function triggerConfirmModal(titleText, promptText, onConfirm) {
+      const modal = document.getElementById('confirmModal');
+      const title = document.getElementById('confirmTitle');
+      const prompt = document.getElementById('confirmPrompt');
+      const btn = document.getElementById('confirmActionBtn');
+      if (!modal || !title || !prompt || !btn) return;
+
+      title.textContent = titleText;
+      prompt.textContent = promptText;
+      btn.onclick = () => {
+        closeConfirmModal();
+        if (typeof onConfirm === 'function') onConfirm();
+      };
+      modal.classList.add('open');
+    }
+
+    let allSnapshotsData = [];
+    let snapshotPollInterval = null;
+
+    async function loadSnapshots() {
+      try {
+        const res = await fetch('/api/snapshots');
+        const data = await res.json();
+
+        if (data.success) {
+          allSnapshotsData = data.snapshots || [];
+          renderSnapshotsTable(allSnapshotsData);
+          updateSnapshotMetrics(allSnapshotsData);
+
+          if (allSnapshotsData.length > 0 && allSnapshotsData[0].publicDownloadUrl) {
+            const baseEl = document.getElementById('snapshotRemoteBase');
+            if (baseEl) {
+              const pubUrl = allSnapshotsData[0].publicDownloadUrl;
+              baseEl.textContent = pubUrl.substring(0, pubUrl.lastIndexOf('/')) + '/:filename';
+            }
+          }
+
+          // Check if snapshot creation is running in background
+          if (data.status && data.status.isRunning) {
+            showSnapshotActiveBanner(data.status);
+            if (!snapshotPollInterval) {
+              snapshotPollInterval = setInterval(pollSnapshotStatus, 2500);
+            }
+          } else {
+            hideSnapshotActiveBanner();
+            if (snapshotPollInterval) {
+              clearInterval(snapshotPollInterval);
+              snapshotPollInterval = null;
+            }
+          }
+        } else {
+          throw new Error(data.error || 'Failed to fetch snapshots');
+        }
+      } catch (err) {
+        console.error('Error loading snapshots:', err);
+        const tbody = document.getElementById('snapshotsTableBody');
+        if (tbody) {
+          tbody.innerHTML = `
+            <tr>
+              <td colspan="4" style="padding:2.5rem; text-align:center; color:#f87171;">
+                <div style="font-size:1.5rem; margin-bottom:0.5rem;">⚠️</div>
+                <div style="font-weight:700;">Could not load snapshots</div>
+                <div style="font-size:0.8rem; color:var(--text-muted); margin:0.35rem 0 1rem 0;">${escapeHtml(err.message)}</div>
+                <button type="button" class="btn-ctrl" onclick="loadSnapshots()" style="padding:0.35rem 0.85rem;">🔄 Try Again</button>
+              </td>
+            </tr>
+          `;
+        }
+      }
+    }
+
+    function updateSnapshotMetrics(snapshots) {
+      const countEl = document.getElementById('metricTotalSnapshots');
+      const storageEl = document.getElementById('metricTotalStorage');
+      const lastEl = document.getElementById('metricLastSnapshot');
+
+      if (countEl) countEl.textContent = snapshots.length;
+
+      let totalBytes = 0;
+      snapshots.forEach(s => { totalBytes += (s.sizeBytes || 0); });
+      if (storageEl) storageEl.textContent = formatBytesJs(totalBytes);
+
+      if (lastEl) {
+        lastEl.textContent = snapshots.length > 0 ? (snapshots[0].createdAtFormatted || snapshots[0].createdAt) : 'Never';
+      }
+    }
+
+    function formatBytesJs(bytes) {
+      if (!bytes || bytes <= 0) return '0 B';
+      const units = ['B', 'KB', 'MB', 'GB', 'TB'];
+      const i = Math.floor(Math.log(bytes) / Math.log(1024));
+      return (bytes / Math.pow(1024, i)).toFixed(2) + ' ' + units[i];
+    }
+
+    function renderSnapshotsTable(snapshots) {
+      const tbody = document.getElementById('snapshotsTableBody');
+      if (!tbody) return;
+
+      if (!snapshots || snapshots.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="4" style="padding:3rem; text-align:center; color:var(--text-muted);">
+              <div style="font-size:2rem; margin-bottom:0.5rem;">📦</div>
+              <div style="font-weight:700; color:#fff; margin-bottom:0.25rem;">No snapshots generated yet</div>
+              <div style="font-size:0.8rem; max-width:400px; margin:0 auto 1rem auto;">
+                Click "Create Instant Full Snapshot" above to generate a complete backup archive of the entire platform workspace.
+              </div>
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      tbody.innerHTML = snapshots.map(s => {
+        const remoteUrl = s.publicDownloadUrl || s.downloadUrl;
+        return `
+          <tr style="border-bottom:1px solid #1e293b; transition:background 0.15s;" onmouseover="this.style.background='rgba(255,255,255,0.02)'" onmouseout="this.style.background='transparent'">
+            <td style="padding:0.85rem 1.25rem;">
+              <div style="display:flex; align-items:center; gap:0.5rem;">
+                <span style="font-size:1.1rem;">📦</span>
+                <div>
+                  <div style="font-weight:700; color:#fff; font-family:monospace; font-size:0.82rem;">${escapeHtml(s.filename)}</div>
+                  <div style="font-size:0.7rem; color:var(--text-muted);">${escapeHtml(s.archiveType || (s.filename.endsWith('.rar') ? 'RAR Archive' : s.filename.endsWith('.tar.gz') ? 'TAR.GZ Fast Native' : 'ZIP Archive'))}</div>
+                </div>
+              </div>
+            </td>
+            <td style="padding:0.85rem 1rem; color:#cbd5e1; font-size:0.8rem;">
+              ${escapeHtml(s.createdAtFormatted || s.createdAt)}
+            </td>
+            <td style="padding:0.85rem 1rem;">
+              <span class="badge" style="background:rgba(56,189,248,0.15); color:#38bdf8; border:1px solid rgba(56,189,248,0.3); font-weight:700; font-size:0.75rem; padding:0.2rem 0.5rem;">
+                ${escapeHtml(s.sizeFormatted || '0 B')}
+              </span>
+            </td>
+            <td style="padding:0.85rem 1.25rem; text-align:right;">
+              <div style="display:flex; justify-content:flex-end; gap:0.4rem; align-items:center;">
+                <a href="${escapeHtml(s.downloadUrl)}" download="${escapeHtml(s.filename)}" class="btn-ctrl" style="background:var(--primary); color:#fff; text-decoration:none; padding:0.35rem 0.75rem; font-size:0.75rem; display:inline-flex; align-items:center; gap:0.3rem;">
+                  <span>⬇️</span> Download
+                </a>
+                <button type="button" class="btn-ctrl" style="background:#1e293b; border:1px solid #334155; padding:0.35rem 0.65rem; font-size:0.75rem;" onclick="copySnapshotLink('${escapeHtml(remoteUrl)}')">
+                  <span>📋</span> Copy Link
+                </button>
+                <button type="button" class="btn-ctrl" style="background:rgba(239,68,68,0.15); border:1px solid rgba(239,68,68,0.3); color:#f87171; padding:0.35rem 0.65rem; font-size:0.75rem;" onclick="confirmDeleteSnapshot('${escapeHtml(s.filename)}')">
+                  <span>🗑️</span>
+                </button>
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function filterSnapshotsTable() {
+      const q = (document.getElementById('snapshotSearchInput')?.value || '').toLowerCase().trim();
+      if (!q) {
+        renderSnapshotsTable(allSnapshotsData);
+        return;
+      }
+      const filtered = allSnapshotsData.filter(s =>
+        (s.filename && s.filename.toLowerCase().includes(q)) ||
+        (s.createdAtFormatted && s.createdAtFormatted.toLowerCase().includes(q))
+      );
+      renderSnapshotsTable(filtered);
+    }
+
+    async function createInstantSnapshot() {
+      const btn = document.getElementById('btnCreateSnapshot');
+      if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner" style="width:14px; height:14px; border:2px solid #fff; border-top-color:transparent; border-radius:50%; display:inline-block; animation:spin 0.8s linear infinite; vertical-align:middle; margin-right:6px;"></span> Compiling Snapshot...';
+      }
+
+      showSnapshotActiveBanner({ elapsedSeconds: 0 });
+
+      try {
+        const format = document.getElementById('snapshotFormatSelect')?.value || 'auto';
+        const res = await fetch('/api/snapshots/create?async=true&format=' + encodeURIComponent(format), { method: 'POST' });
+        const data = await res.json();
+
+        // Start polling for completion
+        if (!snapshotPollInterval) {
+          snapshotPollInterval = setInterval(pollSnapshotStatus, 2500);
+        }
+      } catch (err) {
+        alert('Could not start snapshot creation: ' + err.message);
+        hideSnapshotActiveBanner();
+        if (btn) {
+          btn.disabled = false;
+          btn.innerHTML = '⚡ Create Instant Full Snapshot';
+        }
+      }
+    }
+
+    async function pollSnapshotStatus() {
+      try {
+        const res = await fetch('/api/snapshots/status');
+        const data = await res.json();
+
+        if (data.success && data.status) {
+          if (data.status.isRunning) {
+            const timerEl = document.getElementById('snapshotActiveTimer');
+            if (timerEl) {
+              timerEl.textContent = `${data.status.elapsedSeconds || 0}s elapsed`;
+            }
+          } else {
+            // Snapshot finished!
+            hideSnapshotActiveBanner();
+            if (snapshotPollInterval) {
+              clearInterval(snapshotPollInterval);
+              snapshotPollInterval = null;
+            }
+            const btn = document.getElementById('btnCreateSnapshot');
+            if (btn) {
+              btn.disabled = false;
+              btn.innerHTML = '⚡ Create Instant Full Snapshot';
+            }
+            loadSnapshots();
+          }
+        }
+      } catch {}
+    }
+
+    function showSnapshotActiveBanner(status) {
+      const banner = document.getElementById('snapshotActiveBanner');
+      if (banner) banner.style.display = 'flex';
+      const timerEl = document.getElementById('snapshotActiveTimer');
+      if (timerEl && status) {
+        timerEl.textContent = `${status.elapsedSeconds || 0}s elapsed`;
+      }
+    }
+
+    function hideSnapshotActiveBanner() {
+      const banner = document.getElementById('snapshotActiveBanner');
+      if (banner) banner.style.display = 'none';
+      const btn = document.getElementById('btnCreateSnapshot');
+      if (btn) {
+        btn.disabled = false;
+        btn.innerHTML = '⚡ Create Instant Full Snapshot';
+      }
+    }
+
+    function copySnapshotLink(url) {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(url).then(() => {
+          showActionToast(`✓ Copied download link: ${url}`);
+        }).catch(() => {
+          prompt('Download link (press Ctrl+C to copy):', url);
+        });
+      } else {
+        prompt('Download link (press Ctrl+C to copy):', url);
+      }
+    }
+
+    function confirmDeleteSnapshot(filename) {
+      triggerConfirmModal(
+        'Delete Snapshot Archive',
+        `Are you sure you want to permanently delete snapshot "${filename}"? This action cannot be undone.`,
+        async () => {
+          try {
+            const res = await fetch(`/api/snapshots/${encodeURIComponent(filename)}`, { method: 'DELETE' });
+            const data = await res.json();
+            if (data.success) {
+              showActionToast(`✓ Deleted snapshot ${filename}`);
+              loadSnapshots();
+            } else {
+              alert(data.error || 'Failed to delete snapshot.');
+            }
+          } catch (err) {
+            alert('Error deleting snapshot: ' + err.message);
+          }
+        }
+      );
+    }
+
+    async function loadCredentials() {
+      try {
+        const res = await fetch('/api/credentials');
+        const data = await res.json();
+        if (data.success && data.credentials) {
+          const c = data.credentials;
+          for (const [key, val] of Object.entries(c)) {
+            const input = document.getElementById(`env_${key}`);
+            if (input) {
+              input.value = val;
+            }
+          }
+
+          // Populate Domain & Extension controls
+          if (c.PRIMARY_DOMAIN) {
+            const nameEl = document.getElementById('domainNameInput');
+            if (nameEl) nameEl.value = c.PRIMARY_DOMAIN;
+          }
+          if (c.DOMAIN_EXTENSION) {
+            const extEl = document.getElementById('domainExtInput');
+            if (extEl) extEl.value = c.DOMAIN_EXTENSION;
+          }
+
+          // Auto-extract domain and extension if not explicitly saved but STOREFRONT_URL is custom
+          if (!c.PRIMARY_DOMAIN && c.STOREFRONT_URL && !c.STOREFRONT_URL.includes('localhost') && !c.STOREFRONT_URL.includes('127.0.0.1')) {
+            try {
+              const u = new URL(c.STOREFRONT_URL);
+              const parts = u.hostname.split('.');
+              if (parts.length >= 2) {
+                const ext = '.' + parts.pop();
+                const name = parts.join('.');
+                const nameEl = document.getElementById('domainNameInput');
+                const extEl = document.getElementById('domainExtInput');
+                if (nameEl) nameEl.value = name;
+                if (extEl) extEl.value = ext;
+              }
+              const protoEl = document.getElementById('quickDeployProto');
+              if (protoEl) protoEl.value = u.protocol + '//';
+            } catch {}
+          }
+
+          // If accessed from a deployed VPS host and .env is still localhost, prompt the operator
+          if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+            const isEnvLocal = !c.STOREFRONT_URL || c.STOREFRONT_URL.includes('localhost');
+            if (isEnvLocal) {
+              const parts = window.location.hostname.split('.');
+              if (parts.length >= 2) {
+                let name = parts.slice(0, -1).join('.');
+                const ext = '.' + parts[parts.length - 1];
+                if (name.startsWith('ops.') || name.startsWith('control.') || name.startsWith('admin.')) {
+                  name = name.replace(/^(ops|control|admin)\./, '');
+                }
+                const nameEl = document.getElementById('domainNameInput');
+                const extEl = document.getElementById('domainExtInput');
+                if (nameEl) nameEl.value = name;
+                if (extEl) extEl.value = ext;
+              }
+              console.info('[ControlCenter] Live domain detected with localhost .env config. Pre-filling deployment values.');
+            }
+          }
+
+          updateDomainPreview();
+          updateEnvModeBadge(c);
+          applyModeStateUI(c.ENVIRONMENT_MODE || 'DEVELOPMENT', c.PRIMARY_DOMAIN, c.DOMAIN_EXTENSION, c);
+          updateTunnelStatusBadge();
+        }
+      } catch (e) {
+        console.warn('Error fetching credentials:', e);
+      }
+    }
+
+    function updateTunnelStatusBadge() {
+      const el = document.getElementById('env_CLOUDFLARE_TUNNEL_COMMAND');
+      const badge = document.getElementById('tunnelStatusBadge');
+      if (!el || !badge) return;
+      const val = el.value.trim();
+      if (val) {
+        badge.textContent = '🟢 CONFIGURED';
+        badge.style.background = '#059669';
+        badge.style.color = '#fff';
+      } else {
+        badge.textContent = '⚪ NOT CONFIGURED';
+        badge.style.background = '#334155';
+        badge.style.color = '#cbd5e1';
+      }
+    }
+
+    async function saveTunnelCommandDirectly() {
+      const el = document.getElementById('env_CLOUDFLARE_TUNNEL_COMMAND');
+      const msg = document.getElementById('tunnelSaveMsg');
+      const btn = document.getElementById('btnSaveTunnelCmd');
+      if (!el) return;
+
+      const command = el.value.trim();
+      if (btn) {
+        btn.disabled = true;
+        btn.textContent = 'Saving to DB...';
+      }
+
+      try {
+        const res = await fetch('/api/credentials/tunnel-command', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ command })
+        });
+        const data = await res.json();
+        if (data.success) {
+          updateTunnelStatusBadge();
+          if (msg) {
+            msg.style.display = 'inline';
+            msg.textContent = '✓ Saved to DB & .env!';
+            setTimeout(() => { msg.style.display = 'none'; }, 4000);
+          }
+        } else {
+          alert('Failed to save tunnel command: ' + (data.error || 'Unknown error'));
+        }
+      } catch (err) {
+        alert('Error saving tunnel command: ' + err.message);
+      } finally {
+        if (btn) {
+          btn.disabled = false;
+          btn.textContent = '💾 Save Tunnel Command';
+        }
+      }
+    }
+
+    function fillExampleTunnelToken() {
+      const el = document.getElementById('env_CLOUDFLARE_TUNNEL_COMMAND');
+      if (!el) return;
+      el.value = 'cloudflared tunnel run --token eyJhIjoiYTQxMzZhNmMxYjg5NDEyNGUxOGM0ZTE4MjRjNWNmNjYiLCJ0IjoiZGUwMTU0YjYtMTJmMC00MTU1LThlYWItMzZjNWEzNTU0MGEzIiwicyI6Ik1UWTVZV0U1T0dJdE1tWTBOQzAwT0ROaUxXRXlOak10T0dRMFl6WmpOREkxWkdaaCJ9';
+      updateTunnelStatusBadge();
+    }
+
+    function clearTunnelCommand() {
+      const el = document.getElementById('env_CLOUDFLARE_TUNNEL_COMMAND');
+      if (!el) return;
+      el.value = '';
+      updateTunnelStatusBadge();
+    }
+
+    async function saveCredentials(event) {
+      if (event) event.preventDefault();
+      const btn = document.getElementById('btnSaveEnv');
+      const status = document.getElementById('saveCredStatus');
+      if (btn) {
+        btn.disabled = true;
+        btn.textContent = 'Pushing to .env...';
+      }
+      if (status) status.style.display = 'none';
+
+      // Dynamically capture every input/select/textarea starting with env_
+      const inputs = document.querySelectorAll('input[id^="env_"], select[id^="env_"], textarea[id^="env_"]');
+      const credentials = {};
+      inputs.forEach(el => {
+        const key = el.id.replace('env_', '');
+        credentials[key] = el.value.trim();
+      });
+
+      // Mirror admin password across both master keys
+      if (credentials['ADMIN_PASSWORD']) {
+        credentials['UNIVERSAL_ADMIN_PASSWORD'] = credentials['ADMIN_PASSWORD'];
+      }
+
+      // Synchronize Primary Domain, Extension, and Environment Mode
+      const domainCfg = getDomainConfig();
+      credentials['PRIMARY_DOMAIN'] = domainCfg.name;
+      credentials['DOMAIN_EXTENSION'] = domainCfg.ext;
+      const isProd = credentials['STOREFRONT_URL'] && !credentials['STOREFRONT_URL'].includes('localhost');
+      credentials['ENVIRONMENT_MODE'] = isProd ? 'PRODUCTION' : 'DEVELOPMENT';
+      credentials['NODE_ENV'] = isProd ? 'production' : 'development';
+
+      try {
+        const res = await fetch('/api/credentials', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ credentials })
+        });
+        const data = await res.json();
+        if (data.success) {
+          if (status) {
+            status.style.display = 'inline';
+            status.textContent = '✓ Successfully pushed directly into .env code!';
+            setTimeout(() => { status.style.display = 'none'; }, 4000);
+          }
+          updateEnvModeBadge(credentials);
+        } else {
+          alert('Failed to save credentials: ' + (data.error || 'Unknown error'));
+        }
+      } catch (err) {
+        alert('Error saving credentials: ' + err.message);
+      } finally {
+        if (btn) {
+          btn.disabled = false;
+          btn.textContent = '💾 Push Credentials Directly to Code (.env)';
+        }
+      }
+    }
+
+    // Domain & Extension Synchronizer Suite
+    function getDomainConfig() {
+      const proto = document.getElementById('quickDeployProto').value || 'https://';
+      let name = (document.getElementById('domainNameInput')?.value || 'vienta').trim();
+      let ext = (document.getElementById('domainExtInput')?.value || '.shop').trim();
+
+      // Clean protocol or trailing slashes if user pasted full URL into name
+      name = name.replace(/^https?:\/\//, '').replace(/\/$/, '');
+      if (name.includes('.')) {
+        const parts = name.split('.');
+        ext = '.' + parts.pop();
+        name = parts.join('.');
+        const nameEl = document.getElementById('domainNameInput');
+        const extEl = document.getElementById('domainExtInput');
+        if (nameEl) nameEl.value = name;
+        if (extEl) extEl.value = ext;
+      }
+      if (!ext.startsWith('.') && ext.length > 0) {
+        ext = '.' + ext;
+        const extEl = document.getElementById('domainExtInput');
+        if (extEl) extEl.value = ext;
+      }
+
+      const fullDomain = (name && ext) ? `${name}${ext}` : (name || 'vienta.shop');
+      return { proto, name, ext, fullDomain };
+    }
+
+    function setExtension(ext) {
+      const extEl = document.getElementById('domainExtInput');
+      if (extEl) extEl.value = ext;
+      document.querySelectorAll('.tld-pill').forEach(btn => {
+        if (btn.textContent.trim() === ext) {
+          btn.style.borderColor = '#3b82f6';
+          btn.style.color = '#38bdf8';
+        } else {
+          btn.style.borderColor = '#334155';
+          btn.style.color = '#cbd5e1';
+        }
+      });
+      onDomainConfigChange();
+    }
+
+    function onDomainConfigChange() {
+      updateDomainPreview();
+    }
+
+    function updateDomainPreview() {
+      const { proto, fullDomain } = getDomainConfig();
+      const previewStore = document.getElementById('previewStorefront');
+      if (previewStore) previewStore.textContent = `${proto}${fullDomain}`;
+
+      const previewApi = document.getElementById('previewCommerceApi');
+      if (previewApi) previewApi.textContent = `${proto}api.${fullDomain}`;
+
+      const previewAdmin = document.getElementById('previewAdminPanel');
+      if (previewAdmin) previewAdmin.textContent = `${proto}admin.${fullDomain}`;
+
+      const previewPay = document.getElementById('previewCheckout');
+      if (previewPay) previewPay.textContent = `${proto}pay.${fullDomain}`;
+
+      const previewPayApi = document.getElementById('previewPayApi');
+      if (previewPayApi) previewPayApi.textContent = `${proto}pay-api.${fullDomain}`;
+
+      const previewMerchant = document.getElementById('previewMerchant');
+      if (previewMerchant) previewMerchant.textContent = `${proto}merchant.${fullDomain}`;
+
+      const activeDomainDisplay = document.getElementById('activeDomainDisplay');
+      if (activeDomainDisplay) activeDomainDisplay.textContent = fullDomain;
+
+      // Update Public Routes Table
+      const tblStore = document.getElementById('tblStoreDomain');
+      if (tblStore) tblStore.textContent = fullDomain;
+      const tblApi = document.getElementById('tblApiDomain');
+      if (tblApi) tblApi.textContent = `api.${fullDomain}`;
+      const tblPay = document.getElementById('tblPayDomain');
+      if (tblPay) tblPay.textContent = `pay.${fullDomain}`;
+      const tblPayApi = document.getElementById('tblPayApiDomain');
+      if (tblPayApi) tblPayApi.textContent = `pay-api.${fullDomain}`;
+      const tblMerchant = document.getElementById('tblMerchantDomain');
+      if (tblMerchant) tblMerchant.textContent = `merchant.${fullDomain}`;
+      const tblAdmin = document.getElementById('tblAdminDomain');
+      if (tblAdmin) tblAdmin.textContent = `admin.${fullDomain}`;
+      const tblOps = document.getElementById('tblOpsDomain');
+      if (tblOps) tblOps.textContent = `control.${fullDomain}`;
+      const tblWaApi = document.getElementById('tblWaApiDomain');
+      if (tblWaApi) tblWaApi.textContent = `whatsapp-api.${fullDomain}`;
+      const tblWaWorker = document.getElementById('tblWaWorkerDomain');
+      if (tblWaWorker) tblWaWorker.textContent = `whatsapp-worker.${fullDomain}`;
+      const tblWaDash = document.getElementById('tblWaDashDomain');
+      if (tblWaDash) tblWaDash.textContent = `whatsapp.${fullDomain}`;
+      const tblCore = document.getElementById('tblCoreDomain');
+      if (tblCore) tblCore.textContent = `core.${fullDomain}`;
+      const tblShip = document.getElementById('tblShipDomain');
+      if (tblShip) tblShip.textContent = `shipping.${fullDomain}`;
+      const tblNotify = document.getElementById('tblNotifyDomain');
+      if (tblNotify) tblNotify.textContent = `notify.${fullDomain}`;
+    }
+
+    function updateEnvModeBadge(credentials) {
+      const badge = document.getElementById('envModeBadge');
+      if (!badge) return;
+      const isProd = credentials.STOREFRONT_URL && !credentials.STOREFRONT_URL.includes('localhost');
+      if (isProd) {
+        badge.style.background = '#10b981';
+        badge.textContent = `LIVE PRODUCTION (${credentials.STOREFRONT_URL.replace(/^https?:\/\//, '')})`;
+      } else {
+        badge.style.background = '#f59e0b';
+        badge.textContent = 'LOCALHOST DEV MODE';
+      }
+    }
+
+    function detectHostDomain() {
+      const host = window.location.hostname;
+      if (host === 'localhost' || host === '127.0.0.1') {
+        alert('Currently viewing on localhost. Enter your target live production domain (e.g. "vienta" and ".shop") in the fields above.');
+        return;
+      }
+      const parts = host.split('.');
+      if (parts.length >= 2) {
+        let name = parts.slice(0, -1).join('.');
+        const ext = '.' + parts[parts.length - 1];
+        if (name.startsWith('ops.') || name.startsWith('control.') || name.startsWith('admin.')) {
+          name = name.replace(/^(ops|control|admin)\./, '');
+        }
+        const nameEl = document.getElementById('domainNameInput');
+        const extEl = document.getElementById('domainExtInput');
+        if (nameEl) nameEl.value = name;
+        if (extEl) extEl.value = ext;
+        const protoEl = document.getElementById('quickDeployProto');
+        if (protoEl) protoEl.value = window.location.protocol + '//';
+        onDomainConfigChange();
+        alert(`Detected current deployment host: ${name}${ext} (Protocol: ${window.location.protocol}//)`);
+      }
+    }
+
+    // 1-Click Unified Environment Switcher Core Action
+    async function switchEnvironmentMode(targetMode) {
+      const btnDev = document.getElementById('btnToggleLocalhost');
+      const btnProd = document.getElementById('btnToggleProduction');
+      const isProd = targetMode === 'PRODUCTION';
+      const { proto, name, ext } = getDomainConfig();
+
+      if (btnDev) btnDev.disabled = true;
+      if (btnProd) btnProd.disabled = true;
+
+      try {
+        const res = await fetch('/api/environment/mode', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            mode: targetMode,
+            domain: name || 'vienta',
+            ext: ext || '.shop',
+            proto: proto || 'https://'
+          })
+        });
+
+        const data = await res.json();
+        if (data.success && data.config) {
+          applyModeStateUI(data.mode, data.config.PRIMARY_DOMAIN, data.config.DOMAIN_EXTENSION, data.config);
+          showToastNotification(`✓ Switched to ${isProd ? 'LIVE PRODUCTION (' + (name || 'vienta') + (ext || '.shop') + ')' : 'LOCALHOST DEV'} MODE! All variables & URLs synced.`);
+        } else {
+          alert('Mode switch notice: ' + (data.error || 'Failed to switch mode'));
+        }
+      } catch (err) {
+        alert('Network error switching environment: ' + err.message);
+      } finally {
+        if (btnDev) btnDev.disabled = false;
+        if (btnProd) btnProd.disabled = false;
+      }
+    }
+
+    function applyModeStateUI(mode, domain, ext, config) {
+      const isProd = mode === 'PRODUCTION';
+      const btnDev = document.getElementById('btnToggleLocalhost');
+      const btnProd = document.getElementById('btnToggleProduction');
+      const indicator = document.getElementById('topEnvIndicator');
+      const badge = document.getElementById('envModeBadge');
+
+      if (btnDev) {
+        if (!isProd) {
+          btnDev.classList.add('active-dev');
+        } else {
+          btnDev.classList.remove('active-dev');
+        }
+      }
+      if (btnProd) {
+        if (isProd) {
+          btnProd.classList.add('active-prod');
+        } else {
+          btnProd.classList.remove('active-prod');
+        }
+      }
+      if (indicator) {
+        indicator.textContent = isProd ? 'PROD' : 'DEV';
+        indicator.style.background = isProd ? '#10b981' : '#f59e0b';
+        indicator.style.color = isProd ? '#fff' : '#0f172a';
+      }
+      if (badge) {
+        if (isProd) {
+          badge.style.background = '#10b981';
+          badge.textContent = `LIVE PRODUCTION (${domain || 'vienta'}${ext || '.shop'})`;
+        } else {
+          badge.style.background = '#f59e0b';
+          badge.textContent = 'LOCALHOST DEV MODE';
+        }
+      }
+
+      if (config) {
+        for (const [key, val] of Object.entries(config)) {
+          const el = document.getElementById(`env_${key}`);
+          if (el) el.value = val;
+        }
+      }
+      updateDomainPreview();
+    }
+
+    function showToastNotification(msg) {
+      let toast = document.getElementById('ctrlCenterToast');
+      if (!toast) {
+        toast = document.createElement('div');
+        toast.id = 'ctrlCenterToast';
+        toast.style.cssText = 'position:fixed; bottom:20px; right:20px; background:#0f172a; color:#38bdf8; border:1px solid #38bdf8; padding:0.85rem 1.35rem; border-radius:10px; font-weight:700; font-size:0.85rem; z-index:9999; box-shadow:0 15px 35px rgba(0,0,0,0.6); display:flex; align-items:center; gap:0.5rem; transition:opacity 0.3s;';
+        document.body.appendChild(toast);
+      }
+      toast.textContent = msg;
+      toast.style.opacity = '1';
+      toast.style.display = 'flex';
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        setTimeout(() => { toast.style.display = 'none'; }, 300);
+      }, 4000);
+    }
+
+    // Quick Domain Switcher: Delegates to 1-Click Engine
+    function applyProductionDomain() {
+      switchEnvironmentMode('PRODUCTION');
+    }
+
+    // Quick Domain Switcher: Delegates to 1-Click Engine
+    function revertToLocalhost() {
+      switchEnvironmentMode('DEVELOPMENT');
+    }
+
+    // Fetch Services from Core Handler
+    async function fetchServices() {
+      try {
+        const res = await fetch('/api/core/services');
+        const data = await res.json();
+        if (data.success && data.services) {
+          currentServices = data.services;
+          renderServices(currentServices);
+          document.getElementById('serviceCount').textContent = currentServices.length;
+        }
+      } catch {}
+    }
+
+    // Fetch System Metrics from Core Handler (Section 31)
+    async function fetchMetrics() {
+      try {
+        const res = await fetch('/api/core/metrics');
+        const data = await res.json();
+        if (data.success && data.metrics) {
+          const m = data.metrics;
+          document.getElementById('telemCpu').textContent = `${m.cpuCount || 4} cores`;
+          document.getElementById('telemRam').textContent = `${m.memory?.usagePercent || 0}% (${m.memory?.usedMb}MB)`;
+          document.getElementById('telemUptime').textContent = `${Math.round(m.uptimeSeconds / 60)} min`;
+        }
+      } catch {}
+    }
+
+    // Render Services Grid (Section 31)
+    function renderServices(services) {
+      const grid = document.getElementById('serviceGrid');
+      grid.innerHTML = services.map(s => {
+        const statusClass = `status-${(s.status || 'stopped').toLowerCase()}`;
+        return `
+          <div class="service-card">
+            <div class="service-header">
+              <div>
+                <div class="service-name">${s.displayName}</div>
+                <div class="service-id">${s.id} · Port: ${s.port || 'Worker Daemon'}</div>
+              </div>
+              <span class="status-badge ${statusClass}">${s.status}</span>
+            </div>
+
+            <div class="service-meta">
+              <div>PID: <strong>${s.pid || '-'}</strong></div>
+              <div>Retries: <strong>${s.restartCount || 0}</strong></div>
+              <div>Critical: <strong>${s.criticality || 'STANDARD'}</strong></div>
+              <div>Check: <strong>${s.lastHealthCheck ? new Date(s.lastHealthCheck).toLocaleTimeString() : 'N/A'}</strong></div>
+            </div>
+
+            <div class="service-actions">
+              ${s.status === 'STOPPED' || s.status === 'FAILED' ? `
+                <button class="btn-ctrl btn-start" onclick="reqAction('${s.id}', '${s.displayName}', 'start')">Start</button>
+              ` : `
+                <button class="btn-ctrl btn-restart" onclick="reqAction('${s.id}', '${s.displayName}', 'restart')">Restart</button>
+                <button class="btn-ctrl btn-stop" onclick="reqAction('${s.id}', '${s.displayName}', 'stop')">Stop</button>
+              `}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // Action Confirmation Modal (Section 29)
+    function reqAction(serviceId, displayName, action) {
+      const modal = document.getElementById('confirmModal');
+      const title = document.getElementById('confirmTitle');
+      const prompt = document.getElementById('confirmPrompt');
+      const btn = document.getElementById('confirmActionBtn');
+
+      title.textContent = `${action.toUpperCase()} ${displayName}?`;
+      prompt.textContent = `Are you sure you want to ${action} ${displayName} (${serviceId})? This action will momentarily disrupt traffic.`;
+
+      btn.onclick = () => {
+        executeAction(serviceId, action);
+        closeConfirmModal();
+      };
+
+      modal.classList.add('open');
+    }
+
+    function closeConfirmModal() {
+      document.getElementById('confirmModal').classList.remove('open');
+    }
+
+    async function executeAction(serviceId, action) {
+      try {
+        const res = await fetch(`/api/core/services/${serviceId}/${action}`, { method: 'POST' });
+        const data = await res.json();
+        if (data.success) {
+          fetchServices();
+        }
+      } catch {}
+    }
+
+    // Connect SSE Stream for Live Logs & Health (Section 32)
+    function connectSse() {
+      const es = new EventSource('/api/events/stream');
+
+      es.addEventListener('init', e => {
+        try {
+          const payload = JSON.parse(e.data);
+          if (payload.recentLogs) {
+            allLogs = payload.recentLogs;
+            renderLogs();
+          }
+        } catch {}
+      });
+
+      es.addEventListener('log', e => {
+        try {
+          const logEntry = JSON.parse(e.data);
+          allLogs.push(logEntry);
+          if (allLogs.length > 1000) allLogs.shift();
+          renderLogs();
+        } catch {}
+      });
+
+      es.addEventListener('health', e => {
+        try {
+          const payload = JSON.parse(e.data);
+          if (payload.services) {
+            currentServices = payload.services;
+            renderServices(currentServices);
+          }
+        } catch {}
+      });
+    }
+
+    function filterLogs(category, el) {
+      activeLogCategory = category;
+      document.querySelectorAll('.log-filter-btn').forEach(b => b.classList.remove('active'));
+      if (el) el.classList.add('active');
+      renderLogs();
+    }
+
+    function renderLogs() {
+      const consoleEl = document.getElementById('logsConsole');
+      let filtered = allLogs;
+
+      if (activeLogCategory === 'errors') {
+        filtered = filtered.filter(l => l.level === 'ERROR');
+      } else if (activeLogCategory === 'warnings') {
+        filtered = filtered.filter(l => l.level === 'WARN');
+      } else if (activeLogCategory !== 'all') {
+        filtered = filtered.filter(l => l.category?.toLowerCase() === activeLogCategory.toLowerCase());
+      }
+
+      document.getElementById('logCount').textContent = filtered.length;
+
+      consoleEl.innerHTML = filtered.slice(-200).map(l => {
+        const lvlClass = `log-lvl-${(l.level || 'info').toLowerCase()}`;
+        const time = l.timestamp ? new Date(l.timestamp).toLocaleTimeString() : '';
+        return `
+          <div class="log-row">
+            <span class="log-time">${time}</span>
+            <span class="log-svc">[${l.service}]</span>
+            <span class="${lvlClass}">[${l.level}]</span>
+            <span class="log-msg">${l.message}</span>
+          </div>
+        `;
+      }).join('');
+
+      consoleEl.scrollTop = consoleEl.scrollHeight;
+    }
+
+    function clearLogs() {
+      allLogs = [];
+      renderLogs();
+    }
+
+    window.addEventListener('DOMContentLoaded', init);
+  </script>
+</body>
+</html>

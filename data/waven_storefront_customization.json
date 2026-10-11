@@ -1,0 +1,138 @@
+{
+  "ticker": {
+    "enabled": true,
+    "tag": "LIMITED DROP",
+    "text": "FREE SURFACE SHIPPING ON PREPAID ORDERS OVER ₹999",
+    "linkAction": "/account",
+    "couponCode": "WELCOME20",
+    "couponDiscount": "20% OFF"
+  },
+  "brand": {
+    "name": "VIENTA",
+    "tagline": "Premiuim Clothing",
+    "logoText": "VI",
+    "logoUrl": ""
+  },
+  "navigation": [
+    {
+      "label": "Home",
+      "linkAction": "/"
+    },
+    {
+      "label": "Track Order",
+      "linkAction": "/account"
+    },
+    {
+      "label": "Support",
+      "linkAction": "#support"
+    },
+    {
+      "label": "UTILITY PANTS",
+      "linkAction": "#catalog"
+    },
+    {
+      "label": "TRACK ORDER",
+      "linkAction": "/account"
+    }
+  ],
+  "hero": {
+    "tag": "⚡ AUTUMN / WINTER 2026 DROP",
+    "title": "STREETWEAR ESSENTIALS",
+    "subtitle": "High-density heavyweight cotton, oversized drop-shoulder silhouettes, and precision-tailored urban utility wear.",
+    "ctaText": "Track Order ↗",
+    "ctaLink": "/account",
+    "imageUrl": "https://images.unsplash.com/photo-1509631179647-0177331693ae?w=1600&auto=format&fit=crop&q=85"
+  },
+  "marquee": {
+    "items": [
+      "100% HEAVYWEIGHT COMBED COTTON",
+      "ZERO-PASSWORD WHATSAPP INSTANT CHECKOUT",
+      "FAST EXPRESS DELIVERY ACROSS INDIA",
+      "10-DAY HASSLE-FREE REPLACEMENTS"
+    ]
+  },
+  "categories": {
+    "eyebrow": "CURATED ATELIER",
+    "title": "TOP CATEGORIES",
+    "tiles": [
+      {
+        "name": "Clothes",
+        "imageUrl": "https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=800&auto=format&fit=crop&q=80",
+        "target": "CAT_CLOTHES"
+      },
+      {
+        "name": "IOT & Electronics",
+        "imageUrl": "https://images.unsplash.com/photo-1546435770-a3e426bf472b?w=800&auto=format&fit=crop&q=80",
+        "target": "CAT_IOT"
+      },
+      {
+        "name": "Audio & Music",
+        "imageUrl": "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=800&auto=format&fit=crop&q=80",
+        "target": "CAT_IOT"
+      },
+      {
+        "name": "Vintage Collectibles",
+        "imageUrl": "https://images.unsplash.com/photo-1563861826100-9cb868fdbe1c?w=800&auto=format&fit=crop&q=80",
+        "target": "#catalog"
+      }
+    ]
+  },
+  "catalog": {
+    "eyebrow": "SEASON RELEASES",
+    "title": "FEATURED PRODUCTS",
+    "subtitle": "Premium collections engineered with architectural precision and verified quality.",
+    "featuredProductIds": [
+      "PROD_SKU_HEADPHONES_01",
+      "PROD_SKU_OVERSIZED_T_SHIR_5916",
+      "PROD_SKU_10001",
+      "PROD_SKU_VINTAGE_CLOCK_00"
+    ],
+    "trendingProductIds": [
+      "PROD_SKU_HEADPHONES_01",
+      "PROD_SKU_TSHIRT_8254"
+    ],
+    "newArrivalProductIds": [
+      "PROD_SKU_10001",
+      "PROD_SKU_OVERSIZED_T_SHIR_5916"
+    ]
+  },
+  "lookbook": {
+    "eyebrow": "ATELIER SPOTLIGHT",
+    "title": "LOOKBOOK VOL. 04",
+    "description": "A fusion of architectural tailoring, relaxed drop-shoulder proportions, and high-density 380 GSM combed cotton garments built for the modern metropolis.",
+    "imageUrl": "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=1600&auto=format&fit=crop&q=80",
+    "ctaText": "SHOP THE RUNWAY ↗",
+    "ctaLink": "#catalog",
+    "hotspotProductId": "PROD_SKU_HEADPHONES_01"
+  },
+  "valueProps": [
+    {
+      "title": "Fast Express Delivery",
+      "desc": "Dispatched via priority surface couriers within 24 hours."
+    },
+    {
+      "title": "Authentic Quality",
+      "desc": "Pre-shrunk, heavyweight textiles crafted with precision."
+    },
+    {
+      "title": "10-Day Replacements",
+      "desc": "7-day easy replacement or return policy. Product box and tags must be intact."
+    },
+    {
+      "title": "Encrypted UPI & COD",
+      "desc": "Seamless payments powered by secure UPI & Netbanking."
+    }
+  ],
+  "footer": {
+    "desc": "Independent urban streetwear atelier. Built for contemporary creators with high-spec textiles and effortless silhouettes.",
+    "copyright": "© 2026 VIENTA CLOTHING CO. ALL RIGHTS RESERVED.",
+    "shippingPdf": "",
+    "privacyPdf": "",
+    "termsPdf": ""
+  },
+  "theme": {
+    "primaryDark": "#0e0e10",
+    "accentBadge": "#e62310",
+    "bgMain": "#f5f5f7"
+  }
+}

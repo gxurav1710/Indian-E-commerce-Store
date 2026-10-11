@@ -1,0 +1,13 @@
+{
+  "name": "android-observer-app",
+  "version": "1.0.0",
+  "description": "Native Android Payment Notification Observer App & Companion Driver for YOUPI PG",
+  "type": "module",
+  "main": "./driver.js",
+  "scripts": {
+    "test": "node --test __tests__/**/*.test.js"
+  },
+  "dependencies": {
+    "@youpi/common": "*"
+  }
+}

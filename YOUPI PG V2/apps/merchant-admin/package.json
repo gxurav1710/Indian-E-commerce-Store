@@ -1,0 +1,15 @@
+{
+  "name": "merchant-admin",
+  "version": "1.0.0",
+  "description": "Merchant Administration Portal and Operational Control for YOUPI PG",
+  "type": "module",
+  "main": "./src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "test": "node --test src/__tests__/**/*.test.js"
+  },
+  "dependencies": {
+    "@youpi/common": "*",
+    "@youpi/db": "*"
+  }
+}

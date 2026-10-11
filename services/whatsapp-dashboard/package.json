@@ -1,0 +1,14 @@
+{
+  "name": "@unified/whatsapp-dashboard",
+  "version": "1.0.0",
+  "description": "Dedicated GUI dashboard to manage WhatsApp Baileys multi-device pairing and connection",
+  "type": "module",
+  "main": "./src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "test": "node --test src/__tests__/**/*.test.js"
+  },
+  "dependencies": {
+    "@unified/common": "*"
+  }
+}

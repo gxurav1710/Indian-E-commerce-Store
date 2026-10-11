@@ -1,0 +1,14 @@
+{
+  "name": "@unified/control-center",
+  "version": "1.0.0",
+  "description": "Operator Control Center for technical infrastructure, service controls, and centralized logging",
+  "type": "module",
+  "main": "./src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "test": "node --test src/__tests__/**/*.test.js"
+  },
+  "dependencies": {
+    "@unified/common": "*"
+  }
+}

@@ -1,0 +1,1060 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BerryProtocol Studio — WhatsApp Device & Connection Console</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-base: #090d16;
+      --bg-surface: #111827;
+      --bg-card: rgba(17, 24, 39, 0.85);
+      --bg-card-hover: rgba(30, 41, 59, 0.7);
+      --border: rgba(255, 255, 255, 0.08);
+      --border-accent: rgba(99, 102, 241, 0.3);
+      --primary: #6366f1;
+      --primary-hover: #4f46e5;
+      --emerald: #10b981;
+      --emerald-glow: rgba(16, 185, 129, 0.25);
+      --amber: #f59e0b;
+      --amber-glow: rgba(245, 158, 11, 0.25);
+      --rose: #f43f5e;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --text-dim: #64748b;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-base);
+      background-image: 
+        radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.12) 0px, transparent 50%),
+        radial-gradient(at 100% 100%, rgba(16, 185, 129, 0.08) 0px, transparent 50%);
+      color: var(--text-main);
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Header */
+    header {
+      background: rgba(11, 15, 25, 0.8);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+      padding: 1rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.875rem;
+    }
+
+    .brand-logo {
+      width: 38px;
+      height: 38px;
+      background: linear-gradient(135deg, #6366f1 0%, #a855f7 50%, #ec4899 100%);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.25rem;
+      box-shadow: 0 4px 14px rgba(99, 102, 241, 0.35);
+    }
+
+    .brand-title {
+      font-size: 1.125rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .badge-protocol {
+      background: rgba(99, 102, 241, 0.15);
+      color: #818cf8;
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 0.2rem 0.55rem;
+      border-radius: 6px;
+      border: 1px solid rgba(99, 102, 241, 0.3);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .header-controls {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .status-pill {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.45rem 1rem;
+      border-radius: 9999px;
+      font-size: 0.8125rem;
+      font-weight: 600;
+      border: 1px solid var(--border);
+      background: rgba(17, 24, 39, 0.6);
+      transition: all 0.3s ease;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--text-dim);
+    }
+
+    .status-pill.connected {
+      background: rgba(16, 185, 129, 0.12);
+      border-color: rgba(16, 185, 129, 0.35);
+      color: #34d399;
+    }
+    .status-pill.connected .status-dot {
+      background: #10b981;
+      box-shadow: 0 0 10px #10b981;
+      animation: pulse 2s infinite;
+    }
+
+    .status-pill.pairing {
+      background: rgba(245, 158, 11, 0.12);
+      border-color: rgba(245, 158, 11, 0.35);
+      color: #fbbf24;
+    }
+    .status-pill.pairing .status-dot {
+      background: #f59e0b;
+      box-shadow: 0 0 10px #f59e0b;
+      animation: pulse 1.2s infinite;
+    }
+
+    .status-pill.disconnected {
+      background: rgba(244, 63, 94, 0.12);
+      border-color: rgba(244, 63, 94, 0.35);
+      color: #fb7185;
+    }
+    .status-pill.disconnected .status-dot {
+      background: #f43f5e;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.3); opacity: 0.7; }
+    }
+
+    /* Layout */
+    main {
+      flex: 1;
+      max-width: 1380px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 2rem;
+      display: grid;
+      grid-template-columns: 460px 1fr;
+      gap: 1.75rem;
+    }
+
+    /* Cards */
+    .panel {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 1.5rem;
+      backdrop-filter: blur(12px);
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    .panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 0.875rem;
+    }
+
+    .panel-title {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    /* QR Pairing Section */
+    .qr-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem 1rem;
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      min-height: 380px;
+      text-align: center;
+      position: relative;
+    }
+
+    .qr-box {
+      background: #ffffff;
+      padding: 14px;
+      border-radius: 14px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+    }
+
+    .qr-box img {
+      width: 250px;
+      height: 250px;
+      display: block;
+      image-rendering: pixelated;
+    }
+
+    .qr-instructions {
+      margin-top: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+      font-size: 0.8125rem;
+      color: var(--text-muted);
+      text-align: left;
+      width: 100%;
+      background: rgba(255, 255, 255, 0.03);
+      padding: 0.875rem 1rem;
+      border-radius: 8px;
+    }
+
+    .qr-instructions li {
+      margin-left: 1.25rem;
+    }
+
+    /* Connected State Banner */
+    .connected-card {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1rem;
+      padding: 2rem 1rem;
+      text-align: center;
+    }
+
+    .connected-icon {
+      width: 68px;
+      height: 68px;
+      background: rgba(16, 185, 129, 0.15);
+      border: 2px solid rgba(16, 185, 129, 0.4);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      box-shadow: 0 0 25px var(--emerald-glow);
+    }
+
+    .connected-phone {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: #34d399;
+      letter-spacing: -0.01em;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    /* Device metadata list */
+    .meta-list {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      margin-top: 0.5rem;
+    }
+
+    .meta-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 0.5rem 0.75rem;
+      background: rgba(255, 255, 255, 0.02);
+      border-radius: 6px;
+      font-size: 0.75rem;
+    }
+
+    .meta-label {
+      color: var(--text-dim);
+    }
+
+    .meta-val {
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      padding: 0.65rem 1.125rem;
+      border-radius: 8px;
+      font-size: 0.8125rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      border: 1px solid transparent;
+      outline: none;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: #ffffff;
+      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+    }
+    .btn-primary:hover {
+      background: var(--primary-hover);
+      transform: translateY(-1px);
+    }
+
+    .btn-outline {
+      background: rgba(255, 255, 255, 0.04);
+      border-color: var(--border);
+      color: var(--text-main);
+    }
+    .btn-outline:hover {
+      background: rgba(255, 255, 255, 0.08);
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .btn-danger {
+      background: rgba(244, 63, 94, 0.15);
+      border-color: rgba(244, 63, 94, 0.3);
+      color: #fb7185;
+    }
+    .btn-danger:hover {
+      background: rgba(244, 63, 94, 0.25);
+    }
+
+    .btn-group {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.75rem;
+    }
+
+    /* Tabs */
+    .tabs-nav {
+      display: flex;
+      gap: 0.5rem;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 0.75rem;
+    }
+
+    .tab-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-dim);
+      font-size: 0.8125rem;
+      font-weight: 600;
+      padding: 0.4rem 0.875rem;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .tab-btn:hover {
+      color: var(--text-main);
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .tab-btn.active {
+      color: #818cf8;
+      background: rgba(99, 102, 241, 0.12);
+      border: 1px solid rgba(99, 102, 241, 0.25);
+    }
+
+    .tab-pane {
+      display: none;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    .tab-pane.active {
+      display: flex;
+    }
+
+    /* Forms */
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+    }
+
+    .form-label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .form-input, .form-textarea, .form-select {
+      background: rgba(0, 0, 0, 0.35);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.65rem 0.875rem;
+      color: var(--text-main);
+      font-family: inherit;
+      font-size: 0.875rem;
+      outline: none;
+      transition: all 0.2s ease;
+    }
+
+    .form-input:focus, .form-textarea:focus, .form-select:focus {
+      border-color: #6366f1;
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+    }
+
+    .form-textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+
+    /* Terminal Console */
+    .terminal {
+      background: #060911;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 10px;
+      padding: 0.875rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      color: #94a3b8;
+      max-height: 220px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+    }
+
+    .log-line {
+      display: flex;
+      gap: 0.5rem;
+      line-height: 1.4;
+    }
+    .log-time { color: var(--text-dim); }
+    .log-tag { font-weight: 600; }
+    .log-tag.info { color: #818cf8; }
+    .log-tag.success { color: #34d399; }
+    .log-tag.warn { color: #fbbf24; }
+    .log-tag.error { color: #f43f5e; }
+
+    /* Spinners */
+    .spinner {
+      border: 3px solid rgba(255, 255, 255, 0.1);
+      border-top: 3px solid #6366f1;
+      border-radius: 50%;
+      width: 28px;
+      height: 28px;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Universal Operator Lock Screen Modal -->
+  <div id="authLockModal" style="position:fixed; inset:0; background:rgba(9, 13, 22, 0.97); backdrop-filter:blur(18px); z-index:9999; display:flex; align-items:center; justify-content:center; padding:1.5rem;">
+    <div style="background:#111827; border:1px solid rgba(255,255,255,0.12); border-radius:18px; padding:2.5rem; max-width:440px; width:100%; box-shadow:0 25px 50px -12px rgba(0,0,0,0.8); text-align:center;">
+      <div style="width:58px; height:58px; border-radius:16px; background:rgba(99, 102, 241, 0.15); border:1px solid rgba(99, 102, 241, 0.3); display:inline-flex; align-items:center; justify-content:center; font-size:1.85rem; margin-bottom:1.25rem;">
+        🔐
+      </div>
+      <h2 style="font-size:1.4rem; font-weight:800; color:#f8fafc; margin-bottom:0.4rem; letter-spacing:-0.02em;">
+        BerryProtocol Studio Lock
+      </h2>
+      <p style="font-size:0.85rem; color:#94a3b8; margin-bottom:1.75rem; line-height:1.5;">
+        Enter administrator password or database credential to access the WhatsApp device console.
+      </p>
+      
+      <form id="authLockForm" onsubmit="handleAuthSubmit(event)">
+        <div style="margin-bottom:1.25rem; text-align:left;">
+          <label style="display:block; font-size:0.75rem; font-weight:700; color:#cbd5e1; margin-bottom:0.4rem; text-transform:uppercase; letter-spacing:0.05em;">
+            Admin Password
+          </label>
+          <input 
+            type="password" 
+            id="authLockPassword" 
+            placeholder="Enter password..." 
+            required 
+            autocomplete="current-password"
+            style="width:100%; background:#090d16; border:1px solid rgba(255,255,255,0.15); border-radius:10px; padding:0.85rem 1rem; color:#f8fafc; font-family:'JetBrains Mono', monospace; font-size:0.95rem; outline:none; transition:border-color 0.2s;"
+            onfocus="this.style.borderColor='#6366f1';"
+            onblur="this.style.borderColor='rgba(255,255,255,0.15)';"
+          >
+        </div>
+        <div style="display:flex; align-items:center; gap:0.5rem; margin-top:-0.25rem; margin-bottom:1.25rem; font-size:0.8rem; color:#cbd5e1; text-align:left; cursor:pointer;">
+          <input type="checkbox" id="authLockAutoLogin" checked style="width:16px; height:16px; cursor:pointer; accent-color:#6366f1;">
+          <label for="authLockAutoLogin" style="cursor:pointer; user-select:none;">Keep me logged in permanently (Auto-Login)</label>
+        </div>
+
+        <div id="authLockError" style="display:none; background:rgba(244,63,94,0.1); border:1px solid rgba(244,63,94,0.3); border-radius:8px; padding:0.65rem 0.85rem; font-size:0.8rem; color:#fda4af; margin-bottom:1.25rem; text-align:left;">
+        </div>
+
+        <button 
+          type="submit" 
+          id="btnAuthSubmit"
+          style="width:100%; background:linear-gradient(135deg, #6366f1 0%, #4f46e5 100%); color:#fff; border:none; border-radius:10px; padding:0.85rem; font-size:0.9rem; font-weight:700; cursor:pointer; transition:transform 0.15s, box-shadow 0.15s; box-shadow:0 4px 14px rgba(99, 102, 241, 0.4);"
+          onmouseover="this.style.transform='translateY(-1px)';"
+          onmouseout="this.style.transform='translateY(0)';"
+        >
+          Unlock Console
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Top Header -->
+  <header>
+    <div class="brand">
+      <div class="brand-logo">🍇</div>
+      <div>
+        <div class="brand-title">
+          BerryProtocol Studio
+          <span class="badge-protocol">v0.1.10 Multi-Device</span>
+        </div>
+        <div style="font-size: 0.75rem; color: var(--text-dim);">Unified E-Commerce WhatsApp Control Center</div>
+      </div>
+    </div>
+
+    <div class="header-controls">
+      <div id="status-pill" class="status-pill disconnected">
+        <div class="status-dot"></div>
+        <span id="status-text">INITIALIZING...</span>
+      </div>
+      <button id="btn-refresh" class="btn btn-outline" onclick="pollStatus(true)">
+        <span>🔄</span> Refresh
+      </button>
+      <button id="btn-reconnect" class="btn btn-primary" onclick="triggerPairing()">
+        <span>⚡</span> Reconnect / Pair
+      </button>
+      <button id="btn-logout" class="btn btn-danger" onclick="logoutDevice()">
+        <span>🔌</span> Disconnect
+      </button>
+      <button id="btn-lock" class="btn btn-outline" style="border-color:rgba(255,255,255,0.2);" onclick="lockDashboard()">
+        <span>🔒</span> Lock
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Grid -->
+  <main>
+    <!-- Left Column: Device Pairing Station -->
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-title">
+          <span>📱</span> WhatsApp Device Pairing
+        </div>
+        <span id="connection-mode-badge" style="font-size: 0.7rem; color: var(--emerald); font-weight: 700;">LIVE DAEMON</span>
+      </div>
+
+      <!-- QR Display / Connected State -->
+      <div id="pairing-view" class="qr-container">
+        <!-- Dynamic content rendered by JS -->
+        <div class="spinner"></div>
+        <div style="margin-top: 1rem; color: var(--text-muted); font-size: 0.875rem;">
+          Connecting to BerryProtocol engine...
+        </div>
+      </div>
+
+      <!-- Device Details Card -->
+      <div class="meta-list">
+        <div class="meta-item">
+          <span class="meta-label">Session ID:</span>
+          <span class="meta-val" id="meta-session">vienta_berry_session</span>
+        </div>
+        <div class="meta-item">
+          <span class="meta-label">Engine Core:</span>
+          <span class="meta-val">@berrysdk/core + @berrysdk/transport</span>
+        </div>
+        <div class="meta-item">
+          <span class="meta-label">SQLite Store:</span>
+          <span class="meta-val">data/berry_store.db (node:sqlite)</span>
+        </div>
+        <div class="meta-item">
+          <span class="meta-label">Worker Endpoint:</span>
+          <span class="meta-val">http://localhost:4001</span>
+        </div>
+        <div class="meta-item">
+          <span class="meta-label">Auth Core API:</span>
+          <span class="meta-val">http://localhost:4000</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Column: Protocol Studio Sandbox & Live Testers -->
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-title">
+          <span>🧪</span> BerryProtocol Interactive Sandbox
+        </div>
+        <span style="font-size: 0.75rem; color: var(--text-dim);">Live Verification Tools</span>
+      </div>
+
+      <!-- Tabs Navigation -->
+      <div class="tabs-nav">
+        <button class="tab-btn active" onclick="switchTab('tab-otp')">🔐 Passwordless OTP</button>
+        <button class="tab-btn" onclick="switchTab('tab-lifecycle')">📦 Order Lifecycle</button>
+        <button class="tab-btn" onclick="switchTab('tab-broadcast')">📢 Media & Broadcast</button>
+      </div>
+
+      <!-- Tab 1: OTP & Magic Links -->
+      <div id="tab-otp" class="tab-pane active">
+        <div style="font-size: 0.8125rem; color: var(--text-muted);">
+          Test real WhatsApp OTP challenge dispatch with native Copy-Code button and single-use magic login continuation link.
+        </div>
+        <div class="form-group">
+          <label class="form-label">Customer WhatsApp Number</label>
+          <input type="text" id="otp-phone" class="form-input" value="+919876543211" placeholder="+919876543211">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Customer Name</label>
+          <input type="text" id="otp-name" class="form-input" value="Gaurav (Owner)" placeholder="Customer Name">
+        </div>
+        <button class="btn btn-primary" onclick="sendTestOtp()">
+          <span>🚀</span> Dispatch OTP & Magic Continuation Link
+        </button>
+        <div id="otp-result" style="display: none; padding: 0.75rem; border-radius: 8px; font-size: 0.8125rem; background: rgba(0,0,0,0.3); border: 1px solid var(--border);"></div>
+      </div>
+
+      <!-- Tab 2: Order Lifecycle Triggers -->
+      <div id="tab-lifecycle" class="tab-pane">
+        <div style="font-size: 0.8125rem; color: var(--text-muted);">
+          Trigger dynamic order lifecycle WhatsApp notifications directly through BerryProtocol.
+        </div>
+        <div class="form-group">
+          <label class="form-label">Recipient Phone Number</label>
+          <input type="text" id="life-phone" class="form-input" value="+919876543211">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Order Reference ID</label>
+          <input type="text" id="life-order-id" class="form-input" value="ORD-882190">
+        </div>
+        <div class="btn-group">
+          <button class="btn btn-outline" onclick="sendLifecycle('PLACED')">🛍️ Order Placed</button>
+          <button class="btn btn-outline" onclick="sendLifecycle('CONFIRMED')">✅ Order Confirmed</button>
+          <button class="btn btn-outline" onclick="sendLifecycle('SHIPPED')">🚚 Order Shipped (AWB)</button>
+          <button class="btn btn-outline" onclick="sendLifecycle('DELIVERED')">🎉 Order Delivered</button>
+        </div>
+        <button class="btn btn-primary" style="margin-top: 0.5rem;" onclick="sendLifecycle('OWNER_ALERT')">
+          <span>🔔</span> Store Owner New Order Alert (₹3,499)
+        </button>
+      </div>
+
+      <!-- Tab 3: Media Broadcast -->
+      <div id="tab-broadcast" class="tab-pane">
+        <div style="font-size: 0.8125rem; color: var(--text-muted);">
+          Send marketing announcements or order receipts with media attachments (image/video/document).
+        </div>
+        <div class="form-group">
+          <label class="form-label">Recipient Number</label>
+          <input type="text" id="media-phone" class="form-input" value="+919876543211">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Media URL (Image / Document)</label>
+          <input type="text" id="media-url" class="form-input" value="https://images.unsplash.com/photo-1546435770-a3e426bf472b?w=600">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Caption / Message</label>
+          <textarea id="media-caption" class="form-textarea">✨ [VIENTA] New Season Collection Is Now Live! Enjoy 20% off with code VIENTA20.</textarea>
+        </div>
+        <button class="btn btn-primary" onclick="sendTestMedia()">
+          <span>📤</span> Dispatch WhatsApp Media Message
+        </button>
+      </div>
+
+      <!-- Live Protocol Terminal -->
+      <div style="margin-top: auto;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
+          <span style="font-size: 0.75rem; font-weight: 700; color: var(--text-dim);">PROTOCOL EVENT LOG</span>
+          <button onclick="clearLogs()" style="background: none; border: none; color: var(--text-dim); font-size: 0.7rem; cursor: pointer;">Clear</button>
+        </div>
+        <div id="terminal" class="terminal">
+          <div class="log-line">
+            <span class="log-time">[00:00:00]</span>
+            <span class="log-tag info">[SYSTEM]</span>
+            <span>BerryProtocol Studio dashboard mounted.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    let currentStatus = 'DISCONNECTED';
+    let lastQrCode = null;
+    let pollTimer = null;
+
+    function log(tag, msg, type = 'info') {
+      const term = document.getElementById('terminal');
+      const time = new Date().toTimeString().split(' ')[0];
+      const div = document.createElement('div');
+      div.className = 'log-line';
+      div.innerHTML = `<span class="log-time">[${time}]</span><span class="log-tag ${type}">[${tag}]</span><span>${msg}</span>`;
+      term.appendChild(div);
+      term.scrollTop = term.scrollHeight;
+    }
+
+    function clearLogs() {
+      document.getElementById('terminal').innerHTML = '';
+    }
+
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+      event.target.classList.add('active');
+      document.getElementById(tabId).classList.add('active');
+    }
+
+    async function pollStatus(manual = false) {
+      try {
+        const res = await fetch('/api/status');
+        if (!res.ok) throw new Error('Worker offline');
+        const data = await res.json();
+        
+        updateStatusUI(data);
+        if (manual) log('POLL', 'Status checked manually: ' + (data.status || 'UNKNOWN'), 'info');
+      } catch (err) {
+        updateStatusUI({ status: 'DISCONNECTED', error: err.message });
+      }
+    }
+
+    function updateStatusUI(data) {
+      const status = data.status || 'DISCONNECTED';
+      const pill = document.getElementById('status-pill');
+      const text = document.getElementById('status-text');
+      const container = document.getElementById('pairing-view');
+
+      pill.className = 'status-pill';
+
+      if (status === 'CONNECTED' && (data.clientInfo?.phoneNumber || data.phoneNumber)) {
+        pill.classList.add('connected');
+        const phone = data.clientInfo?.phoneNumber || data.phoneNumber;
+        text.innerText = `CONNECTED (${phone})`;
+
+        if (currentStatus !== 'CONNECTED') {
+          log('BERRY', `WhatsApp Device Connected: ${phone}`, 'success');
+          currentStatus = 'CONNECTED';
+        }
+
+        container.innerHTML = `
+          <div class="connected-card">
+            <div class="connected-icon">✅</div>
+            <div style="font-size: 1.125rem; font-weight: 700; color: #ffffff;">Device Successfully Paired!</div>
+            <div class="connected-phone">${phone}</div>
+            <div style="font-size: 0.8125rem; color: var(--text-muted); max-width: 320px;">
+              Your WhatsApp device is fully paired and operating live on Port 4001 with native BerryProtocol multi-device engine.
+            </div>
+            <button class="btn btn-outline" style="margin-top: 1rem;" onclick="logoutDevice()">
+              <span>🔌</span> Disconnect Session
+            </button>
+          </div>
+        `;
+      } else if (status === 'QR_READY' || data.qrCode || data.dataUrl) {
+        pill.classList.add('pairing');
+        text.innerText = 'SCAN QR CODE TO PAIR';
+
+        if (currentStatus !== 'QR_READY') {
+          log('BERRY', 'Fresh pairing QR code generated. Point camera to link device.', 'warn');
+          currentStatus = 'QR_READY';
+        }
+
+        const qrSrc = (data.qrCode && data.qrCode.startsWith('data:image')) 
+          ? data.qrCode 
+          : (data.dataUrl && data.dataUrl.startsWith('data:image'))
+            ? data.dataUrl
+            : `/api/qr?t=${Date.now()}`;
+
+        container.innerHTML = `
+          <div class="qr-box">
+            <img id="qr-image" src="${qrSrc}" alt="WhatsApp Pairing QR Code" />
+          </div>
+          <div class="qr-instructions">
+            <strong>Scan to pair with BerryProtocol:</strong>
+            <ol>
+              <li>Open WhatsApp on your mobile device</li>
+              <li>Tap <strong>Settings / Linked Devices</strong></li>
+              <li>Tap <strong>Link a Device</strong> and point camera here</li>
+            </ol>
+            <div style="margin-top: 0.75rem; display: flex; gap: 0.5rem; justify-content: center;">
+              <button class="btn btn-outline" style="font-size: 0.75rem; padding: 0.35rem 0.75rem;" onclick="triggerPairing()">
+                🔄 Regenerate QR Code
+              </button>
+            </div>
+          </div>
+        `;
+      } else {
+        pill.classList.add('disconnected');
+        text.innerText = 'DISCONNECTED';
+        currentStatus = 'DISCONNECTED';
+
+        container.innerHTML = `
+          <div style="display: flex; flex-direction: column; align-items: center; gap: 1rem;">
+            <div style="font-size: 2.5rem;">📱</div>
+            <div style="font-weight: 700; color: #f8fafc;">Device Not Connected</div>
+            <div style="font-size: 0.8125rem; color: var(--text-dim); max-width: 280px;">
+              Click "Generate QR Code" to generate a live BerryProtocol multi-device QR code.
+            </div>
+            <button class="btn btn-primary" onclick="triggerPairing()">
+              <span>⚡</span> Generate QR Code
+            </button>
+          </div>
+        `;
+      }
+    }
+
+    async function triggerPairing() {
+      log('BERRY', 'Generating fresh pairing QR code...', 'info');
+      try {
+        const res = await fetch('/api/pairing/start', { method: 'POST' });
+        const data = await res.json();
+        if (data.success) {
+          log('BERRY', 'Pairing QR code generated successfully.', 'success');
+          currentStatus = data.status || 'QR_READY';
+          updateStatusUI(data);
+        } else {
+          log('ERROR', `Pairing error: ${data.error || data.message}`, 'error');
+        }
+      } catch (err) {
+        log('ERROR', `Failed to start pairing: ${err.message}`, 'error');
+      }
+    }
+
+    async function logoutDevice() {
+      if (!confirm('Are you sure you want to disconnect this WhatsApp session? All credentials and session files will be cleaned.')) return;
+      log('BERRY', 'Disconnecting session and cleaning credentials...', 'warn');
+      try {
+        const res = await fetch('/api/pairing/logout', { method: 'POST' });
+        const data = await res.json();
+        if (data.success) {
+          log('BERRY', 'Session files cleaned. Generating fresh QR code for next pairing...', 'success');
+          currentStatus = data.status || 'QR_READY';
+          updateStatusUI(data);
+        } else {
+          log('ERROR', `Disconnect failed: ${data.error || data.message}`, 'error');
+          pollStatus(true);
+        }
+      } catch (err) {
+        log('ERROR', `Disconnect error: ${err.message}`, 'error');
+        pollStatus(true);
+      }
+    }
+
+    async function sendTestOtp() {
+      const phone = document.getElementById('otp-phone').value;
+      const name = document.getElementById('otp-name').value;
+      const resBox = document.getElementById('otp-result');
+
+      log('OTP', `Initiating passwordless login for ${phone}...`, 'info');
+      resBox.style.display = 'block';
+      resBox.innerHTML = '<span style="color: #fbbf24;">Sending OTP via BerryProtocol...</span>';
+
+      try {
+        const res = await fetch('/api/test-otp', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ phone_number: phone, full_name: name })
+        });
+        const data = await res.json();
+
+        if (data.success) {
+          log('OTP', `Challenge ${data.data.challenge} dispatched to ${phone}!`, 'success');
+          resBox.innerHTML = `
+            <div style="color: #34d399; font-weight: 700; margin-bottom: 0.25rem;">✅ OTP Dispatched via BerryProtocol!</div>
+            <div>Challenge Code: <strong style="color: #ffffff;">${data.data.challenge}</strong></div>
+            <div style="margin-top: 0.25rem;">Continuation Magic Link: <a href="${data.data.continue_url}" target="_blank" style="color: #818cf8; word-break: break-all;">${data.data.continue_url}</a></div>
+          `;
+        } else {
+          log('OTP', `Dispatch failed: ${data.error || 'Unknown error'}`, 'error');
+          resBox.innerHTML = `<span style="color: #f43f5e;">Error: ${data.error || 'Failed to dispatch OTP'}</span>`;
+        }
+      } catch (err) {
+        log('OTP', `Network error: ${err.message}`, 'error');
+        resBox.innerHTML = `<span style="color: #f43f5e;">Network Error: ${err.message}</span>`;
+      }
+    }
+
+    async function sendLifecycle(type) {
+      const phone = document.getElementById('life-phone').value;
+      const orderId = document.getElementById('life-order-id').value;
+
+      let msg = '';
+      if (type === 'PLACED') {
+        msg = `🛍️ *[VIENTA] Order Placed!*\n\nHi Customer,\nYour order *#${orderId}* for *₹2,499* has been placed successfully.\n\n— *VIENTA*`;
+      } else if (type === 'CONFIRMED') {
+        msg = `✅ *[VIENTA] Order Confirmed!*\n\nHi Customer,\nOrder *#${orderId}* is confirmed and packed.\n\n— *VIENTA*`;
+      } else if (type === 'SHIPPED') {
+        msg = `🚚 *[VIENTA] Order Shipped!*\n\nHi Customer,\nYour order *#${orderId}* has been shipped via *BlueDart Express*.\nTracking Number: *BD892019942*\n\n— *VIENTA*`;
+      } else if (type === 'DELIVERED') {
+        msg = `🎉 *[VIENTA] Order Delivered!*\n\nHi Customer,\nYour order *#${orderId}* has been delivered.\nThank you for choosing VIENTA!\n\n— *VIENTA*`;
+      } else if (type === 'OWNER_ALERT') {
+        msg = `🔔 *[VIENTA OWNER ALERT] New Order Received!*\n\nOrder: *#${orderId}*\nAmount: *₹3,499 (PAID)*\nCustomer: Gaurav (+919876543211)\nItems: 2x Premium Slim Fit Shirt\n\n— *VIENTA Commerce Engine*`;
+      }
+
+      log('LIFECYCLE', `Dispatching ${type} to ${phone}...`, 'info');
+
+      try {
+        const res = await fetch('/api/test-message', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ to: phone, message: msg, source: 'dashboard_test' })
+        });
+        const data = await res.json();
+        if (data.success) {
+          log('LIFECYCLE', `${type} message delivered!`, 'success');
+        } else {
+          log('LIFECYCLE', `Delivery notice: ${data.message || data.error}`, 'warn');
+        }
+      } catch (err) {
+        log('LIFECYCLE', `Error: ${err.message}`, 'error');
+      }
+    }
+
+    async function sendTestMedia() {
+      const to = document.getElementById('media-phone').value;
+      const mediaUrl = document.getElementById('media-url').value;
+      const message = document.getElementById('media-caption').value;
+
+      log('MEDIA', `Sending media to ${to}...`, 'info');
+
+      try {
+        const res = await fetch('/api/test-message', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ to, message, mediaUrl, mediaType: 'image' })
+        });
+        const data = await res.json();
+        if (data.success) {
+          log('MEDIA', 'Media message dispatched successfully via BerryProtocol!', 'success');
+        } else {
+          log('MEDIA', `Failed: ${data.error || data.message}`, 'error');
+        }
+      } catch (err) {
+        log('MEDIA', `Error: ${err.message}`, 'error');
+      }
+    }
+
+    // Authentication Guard (Reload Logout Enforced unless Auto-Login is checked)
+    function checkAuthSession() {
+      const isAutoLogin = localStorage.getItem('wa_admin_autologin') === 'true';
+      const token = localStorage.getItem('wa_admin_token');
+
+      if (isAutoLogin && token) {
+        document.getElementById('authLockModal').style.display = 'none';
+        return true;
+      }
+
+      // Reload logout: if Auto-Login was not enabled, clear any session and require password
+      sessionStorage.removeItem('wa_admin_token');
+      localStorage.removeItem('wa_admin_token');
+      localStorage.removeItem('wa_admin_autologin');
+
+      document.getElementById('authLockModal').style.display = 'flex';
+      setTimeout(() => document.getElementById('authLockPassword')?.focus(), 100);
+      return false;
+    }
+
+    function lockDashboard() {
+      sessionStorage.removeItem('wa_admin_token');
+      localStorage.removeItem('wa_admin_token');
+      localStorage.removeItem('wa_admin_autologin');
+      document.getElementById('authLockPassword').value = '';
+      document.getElementById('authLockError').style.display = 'none';
+      document.getElementById('authLockModal').style.display = 'flex';
+      setTimeout(() => document.getElementById('authLockPassword')?.focus(), 100);
+    }
+
+    async function handleAuthSubmit(event) {
+      if (event) event.preventDefault();
+      const passInput = document.getElementById('authLockPassword');
+      const errEl = document.getElementById('authLockError');
+      const btn = document.getElementById('btnAuthSubmit');
+      const autoLogin = document.getElementById('authLockAutoLogin')?.checked;
+      const password = (passInput.value || '').trim();
+
+      if (!password) return;
+
+      btn.disabled = true;
+      btn.textContent = 'Verifying...';
+      errEl.style.display = 'none';
+
+      try {
+        const res = await fetch('/api/auth/verify', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ password })
+        });
+        const data = await res.json();
+
+        if (data.success) {
+          const token = data.token || 'WA_AUTH_ACTIVE';
+          if (autoLogin) {
+            localStorage.setItem('wa_admin_token', token);
+            localStorage.setItem('wa_admin_autologin', 'true');
+          } else {
+            localStorage.removeItem('wa_admin_token');
+            localStorage.removeItem('wa_admin_autologin');
+            sessionStorage.setItem('wa_admin_token', token);
+          }
+          document.getElementById('authLockModal').style.display = 'none';
+          log('AUTH', `Session authorized via ${data.mode || 'Credentials'} (Auto-login: ${autoLogin ? 'ON' : 'OFF'})`, 'success');
+          pollStatus(true);
+        } else {
+          errEl.textContent = data.error || 'Incorrect password.';
+          errEl.style.display = 'block';
+          passInput.select();
+        }
+      } catch (err) {
+        errEl.textContent = 'Verification error: ' + err.message;
+        errEl.style.display = 'block';
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Unlock Console';
+      }
+    }
+
+    // Auto-polling initialization
+    if (checkAuthSession()) {
+      pollStatus();
+    }
+    pollTimer = setInterval(() => {
+      if (sessionStorage.getItem('wa_admin_token') || localStorage.getItem('wa_admin_token')) {
+        pollStatus();
+      }
+    }, 3000);
+  </script>
+</body>
+</html>

@@ -1,0 +1,14 @@
+{
+  "name": "@youpi/core",
+  "version": "1.0.0",
+  "description": "Payment core state machine, observation normalizer, and attribution engine for YOUPI PG",
+  "type": "module",
+  "main": "./src/index.js",
+  "scripts": {
+    "test": "node --test src/__tests__/**/*.test.js"
+  },
+  "dependencies": {
+    "@youpi/common": "*",
+    "@youpi/db": "*"
+  }
+}

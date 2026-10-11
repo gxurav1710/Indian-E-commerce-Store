@@ -1,0 +1,10 @@
+{
+  "name": "@unified/common",
+  "version": "1.0.0",
+  "description": "Shared protocols, ports, canonical identity, events, and logging utilities",
+  "type": "module",
+  "main": "./src/index.js",
+  "scripts": {
+    "test": "node --test src/__tests__/**/*.test.js"
+  }
+}

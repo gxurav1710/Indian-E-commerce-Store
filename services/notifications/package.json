@@ -1,0 +1,15 @@
+{
+  "name": "@unified/notification-service",
+  "version": "1.0.0",
+  "description": "Event-driven dynamic customer WhatsApp notification dispatcher",
+  "type": "module",
+  "main": "./src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "test": "node --test src/__tests__/**/*.test.js"
+  },
+  "dependencies": {
+    "@unified/common": "*",
+    "@unified/db": "*"
+  }
+}
